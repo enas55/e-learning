@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Typography,
     TextField,
@@ -16,47 +16,32 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-    registerUser,
-    loginUser,
-    setEmail,
-    setPassword,
-    setName,
-    setRole,
-    setEmailError,
-    setPasswordError,
-    setNameError,
-    setAlertMessage,
-    setAlertSeverity,
-    setShowPassword,
-    setIsLogin,
-    resetErrors,
-} from '../../redux/store';
 import backgroundImage from '../../assets/images/virtual_school_Learner-951895893.jpg';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { setLanguage } from '../../redux/store';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { setDoc, doc, getDoc } from 'firebase/firestore';
+import { auth, db } from '../../firebase/firebaseConfig';
 
 function AuthForm() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const {
-        email,
-        password,
-        name,
-        role,
-        emailError,
-        passwordError,
-        nameError,
-        alertMessage,
-        alertSeverity,
-        showPassword,
-        isLogin,
-        loading,
-    } = useSelector((state) => state.auth);
-
     const { language, translations } = useSelector((state) => state.translation);
     const t = translations[language];
+
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [name, setName] = useState('');
+    const [role, setRole] = useState('user');
+    const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+    const [nameError, setNameError] = useState('');
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertSeverity, setAlertSeverity] = useState('success');
+    const [showPassword, setShowPassword] = useState(false);
+    const [isLogin, setIsLogin] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (isLogin) {
@@ -65,10 +50,6 @@ function AuthForm() {
             document.title = t.register;
         }
     }, [isLogin, t]);
-
-    useEffect(() => {
-        dispatch(setAlertMessage(''));
-    }, [dispatch]);
 
     const validateEmail = (email) => {
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -89,15 +70,15 @@ function AuthForm() {
         var isValid = true;
 
         if (!email) {
-            dispatch(setEmailError(t.email_required));
+            setEmailError(t.email_required);
             isValid = false;
         } else if (!validateEmail(email)) {
-            dispatch(setEmailError(t.invalid_email));
+            setEmailError(t.invalid_email);
             isValid = false;
         }
 
         if (!password) {
-            dispatch(setPasswordError(t.password_required));
+            setPasswordError(t.password_required);
             isValid = false;
         }
 
@@ -108,26 +89,26 @@ function AuthForm() {
         var isValid = true;
 
         if (!name) {
-            dispatch(setNameError(t.name_required));
+            setNameError(t.name_required);
             isValid = false;
         } else if (!validateName(name)) {
-            dispatch(setNameError(t.name_invalid));
+            setNameError(t.name_invalid);
             isValid = false;
         }
 
         if (!email) {
-            dispatch(setEmailError(t.email_required));
+            setEmailError(t.email_required);
             isValid = false;
         } else if (!validateEmail(email)) {
-            dispatch(setEmailError(t.invalid_email));
+            setEmailError(t.invalid_email);
             isValid = false;
         }
 
         if (!password) {
-            dispatch(setPasswordError(t.password_required));
+            setPasswordError(t.password_required);
             isValid = false;
         } else if (!validatePassword(password)) {
-            dispatch(setPasswordError(t.invalid_password));
+            setPasswordError(t.invalid_password);
             isValid = false;
         }
 
@@ -137,16 +118,19 @@ function AuthForm() {
     useEffect(() => {
         if (alertMessage) {
             const timer = setTimeout(() => {
-                dispatch(setAlertMessage(''));
+                setAlertMessage('');
             }, 2000);
 
             return () => clearTimeout(timer);
         }
-    }, [alertMessage, dispatch]);
+    }, [alertMessage]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        dispatch(resetErrors());
+        setEmailError('');
+        setPasswordError('');
+        setNameError('');
+        setAlertMessage('');
 
         const isValid = isLogin ? validateLogin() : validateRegistration();
 
@@ -154,37 +138,63 @@ function AuthForm() {
             return;
         }
 
+        setLoading(true);
+
         if (isLogin) {
-            dispatch(loginUser({ email, password }))
-                .then((response) => {
-                    const { role } = response;
-                    dispatch(setAlertMessage(t.login_successful));
-                    dispatch(setAlertSeverity('success'));
-                    setTimeout(() => {
-                        navigate(role === 'admin' ? '/admin-dashboard' : '/user-dashboard');
-                    }, 2000);
-                    dispatch(setEmail(''));
-                    dispatch(setPassword(''));
-                })
-                .catch((error) => {
-                    dispatch(setAlertMessage(error.message));
-                    dispatch(setAlertSeverity('error'));
-                });
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
+                const userData = userDoc.data();
+
+                if (!userDoc.exists()) {
+                    setLoading(false);
+                    setEmailError(t.email_required);
+                    throw new Error("No user found in Firestore");
+                }
+
+                setLoading(false);
+                setAlertMessage(t.login_successful);
+                setAlertSeverity('success');
+                setTimeout(() => {
+                    navigate(userData.role === 'admin' ? '/admin-dashboard' : '/user-dashboard');
+                }, 2000);
+                setEmail('');
+                setPassword('');
+            } catch (error) {
+                setLoading(false);
+                if (error.code === "auth/user-not-found") {
+                    setEmailError(t.no_account_found);
+                } else if (error.code === "auth/wrong-password") {
+                    setPasswordError(t.wrong_password);
+                } else if (error.code === "auth/invalid-email") {
+                    setEmailError(t.invalid_email);
+                }
+                setAlertMessage(error.message);
+                setAlertSeverity('error');
+            }
         } else {
-            dispatch(registerUser({ email, password, name, role }))
-                .then(() => {
-                    dispatch(setIsLogin(true));
-                    dispatch(setAlertMessage(t.registration_successful));
-                    dispatch(setAlertSeverity('success'));
-                    dispatch(setEmail(''));
-                    dispatch(setPassword(''));
-                    dispatch(setName(''));
-                    dispatch(setRole('user'));
-                })
-                .catch((error) => {
-                    dispatch(setAlertMessage(error.message));
-                    dispatch(setAlertSeverity('error'));
-                });
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await setDoc(doc(db, 'users', userCredential.user.uid), { name, email, role });
+
+                setLoading(false);
+                setIsLogin(true);
+                setAlertMessage(t.registration_successful);
+                setAlertSeverity('success');
+                setEmail('');
+                setPassword('');
+                setName('');
+                setRole('user');
+            } catch (error) {
+                setLoading(false);
+                if (error.code === "auth/email-already-in-use") {
+                    setEmailError(t.email_already_in_use);
+                } else if (error.code === "auth/invalid-email") {
+                    setEmailError(t.invalid_email);
+                }
+                setAlertMessage(error.message);
+                setAlertSeverity('error');
+            }
         }
     };
 
@@ -300,7 +310,7 @@ function AuthForm() {
                                     marginLeft: language === 'ar' ? '8px' : 'auto',
                                 },
                             }}
-                            onClose={() => dispatch(setAlertMessage(''))}
+                            onClose={() => setAlertMessage('')}
                         >
                             {alertMessage}
                         </Alert>
@@ -314,7 +324,7 @@ function AuthForm() {
                                 fullWidth
                                 label={t.name}
                                 value={name}
-                                onChange={(e) => dispatch(setName(e.target.value))}
+                                onChange={(e) => setName(e.target.value)}
                                 error={!!nameError}
                                 helperText={nameError}
                                 dir={language === 'ar' ? 'rtl' : 'ltr'}
@@ -348,7 +358,7 @@ function AuthForm() {
                             label={t.email}
                             type="email"
                             value={email}
-                            onChange={(e) => dispatch(setEmail(e.target.value))}
+                            onChange={(e) => setEmail(e.target.value)}
                             error={!!emailError}
                             helperText={emailError}
                             dir={language === 'ar' ? 'rtl' : 'ltr'}
@@ -382,7 +392,7 @@ function AuthForm() {
                                 label={t.password}
                                 type={showPassword ? 'text' : 'password'}
                                 value={password}
-                                onChange={(e) => dispatch(setPassword(e.target.value))}
+                                onChange={(e) => setPassword(e.target.value)}
                                 error={!!passwordError}
                                 helperText={passwordError}
                                 dir={language === 'ar' ? 'rtl' : 'ltr'}
@@ -413,7 +423,7 @@ function AuthForm() {
                                         endAdornment: (
                                             <InputAdornment position="end">
                                                 <IconButton
-                                                    onClick={() => dispatch(setShowPassword(!showPassword))}
+                                                    onClick={() => setShowPassword(!showPassword)}
                                                     edge="end"
                                                     sx={{ color: '#A0A0A0' }}
                                                 >
@@ -432,7 +442,7 @@ function AuthForm() {
                                 <RadioGroup
                                     row
                                     value={role}
-                                    onChange={(e) => dispatch(setRole(e.target.value))}
+                                    onChange={(e) => setRole(e.target.value)}
                                 >
                                     <FormControlLabel
                                         value="user"
@@ -490,16 +500,19 @@ function AuthForm() {
                         color="#FCD980"
                         sx={{ fontWeight: 'bold' }}
                         onClick={() => {
-                            dispatch(resetErrors());
-                            dispatch(setIsLogin(!isLogin));
+                            setEmailError('');
+                            setPasswordError('');
+                            setNameError('');
+                            setAlertMessage('');
+                            setIsLogin(!isLogin);
                             if (isLogin) {
-                                dispatch(setEmail(''));
-                                dispatch(setPassword(''));
+                                setEmail('');
+                                setPassword('');
                             } else {
-                                dispatch(setEmail(''));
-                                dispatch(setPassword(''));
-                                dispatch(setName(''));
-                                dispatch(setRole('user'));
+                                setEmail('');
+                                setPassword('');
+                                setName('');
+                                setRole('user');
                             }
                         }}
                     >
