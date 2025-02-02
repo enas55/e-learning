@@ -21,7 +21,7 @@ const translationSlice = createSlice({
         },
     },
 });
-
+// ============================================================================================================
 // auth slice
 const authSlice = createSlice({
     name: 'auth',
@@ -85,7 +85,7 @@ const authSlice = createSlice({
         },
     },
 });
-
+// =========================================================================================================
 // firebase auth actin
 export const registerUser = (userData) => async (dispatch) => {
     dispatch(setLoading(true));
@@ -104,7 +104,7 @@ export const registerUser = (userData) => async (dispatch) => {
     } catch (error) {
         dispatch(setLoading(false));
         if (error.code === "auth/email-already-in-use") {
-            dispatch(setEmailError("This email is already registered. Try to login"));
+            dispatch(setEmailError("This email is already registered"));
         } else if (error.code === "auth/invalid-email") {
             dispatch(setEmailError("Invalid email"));
         }
@@ -144,7 +144,7 @@ export const loginUser = (credentials) => async (dispatch) => {
         throw error;
     }
 };
-
+// ============================================================================================================
 // store
 const store = configureStore({
     reducer: {
