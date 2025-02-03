@@ -17,7 +17,7 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
-const pages = ['Home', 'All Courses', 'Cart', 'Favorite'];
+const pages = ['Home', 'All Courses', 'Favorite'];
 const settings = ['Profile', 'Dashboard', 'Logout'];
 
 function ResponsiveAppBar() {
@@ -51,8 +51,6 @@ function ResponsiveAppBar() {
             return path === '/';
         } else if (page === 'All Courses') {
             return path === '/all-courses';
-        } else if (page === 'Cart') {
-            return path === '/cart';
         } else if (page === 'Favorite') {
             return path === '/favorite';
         }
@@ -138,7 +136,7 @@ function ResponsiveAppBar() {
                             size="small"
                             sx={{
                                 backgroundColor: 'white',
-                                borderRadius: '4px',
+                                borderRadius: '8px',
                                 width: { xs: '100%', sm: '250px', md: '300px' },
                             }}
                         />
@@ -171,16 +169,9 @@ function ResponsiveAppBar() {
                         ))}
                     </Box>
 
-                    <Box sx={{ flexGrow: 0, mr: 2 }}>
-                        <IconButton onClick={toggleLanguage} color="inherit">
-                            <LanguageIcon />
-                            <Typography variant="body1" sx={{ ml: 1 }}>
-                                {language === 'en' ? 'English' : 'العربية'}
-                            </Typography>
-                        </IconButton>
-                    </Box>
+                    
 
-                    <Box sx={{ flexGrow: 0 }}>
+                    <Box sx={{ flexGrow: 0, ml : 2}}>
                         <Tooltip title="Open settings">
                             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                                 <Avatar alt="User" src="/static/images/avatar/2.jpg" />
@@ -208,6 +199,15 @@ function ResponsiveAppBar() {
                                 </MenuItem>
                             ))}
                         </Menu>
+                    </Box>
+
+                    <Box sx={{ flexGrow: 0, mr: 1, ml: 2 }}>
+                        <IconButton onClick={toggleLanguage} color="inherit">
+                            <LanguageIcon />
+                            <Typography variant="body1" sx={{ ml: 1 }}>
+                                {language === 'en' ? 'English' : 'العربية'}
+                            </Typography>
+                        </IconButton>
                     </Box>
                 </Toolbar>
             </Container>

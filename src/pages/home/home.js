@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase/firebaseConfig";
-import ResponsiveAppBar from "./navbar";
-import { Container, Box, Typography, Pagination, Button, IconButton, Chip, Modal } from "@mui/material";
+import ResponsiveAppBar from "../../components/navbar";
+import { Container, Box, Typography, Pagination, IconButton, Chip, Modal, CircularProgress } from "@mui/material";
 import CourseCard from "../../components/courseCard";
 import CustomSnackbar from "../../components/snackbarComponent";
 import ConfirmDialog from "../../components/confirmDialog";
@@ -12,15 +13,14 @@ import "slick-carousel/slick/slick-theme.css";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import Banner from "./banner";
+import Footer from "../../components/footer";
+import CloseIcon from "@mui/icons-material/Close";
 
 function Home() {
     const [courses, setCourses] = useState([]);
     const [favorites, setFavorites] = useState({});
-    const [cartItems, setCartItems] = useState({});
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
-    const [openDialog, setOpenDialog] = useState(false);
-    const [selectedCourse, setSelectedCourse] = useState(null);
     const [openFavoriteDialog, setOpenFavoriteDialog] = useState(false);
     const [courseToRemoveFromFavorites, setCourseToRemoveFromFavorites] = useState(null);
     const [currentPopularPage, setCurrentPopularPage] = useState(1);
@@ -28,6 +28,15 @@ function Home() {
     const [openCategoryModal, setOpenCategoryModal] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState("");
     const [categoryCourses, setCategoryCourses] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const location = useLocation();
+    const [courseToJoin, setCourseToJoin] = useState(null);
+    const [joinedCourses, setJoinedCourses] = useState({});
+    const [openJoinDialog, setOpenJoinDialog] = useState(false);
+
+    useEffect(() => {
+        document.title = "Home";
+    }, [location]);
 
     useEffect(() => {
         const fetchCourses = async () => {
@@ -41,41 +50,13 @@ function Home() {
                 setCourses(coursesData);
             } catch (error) {
                 console.error(error);
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchCourses();
     }, []);
-
-    // add to cart
-    const handleCartToggle = (courseId, courseTitle) => {
-        if (cartItems[courseId]) {
-            setSelectedCourse({ courseId, courseTitle });
-            setOpenDialog(true);
-        } else {
-            setCartItems((prevCart) => ({
-                ...prevCart,
-                [courseId]: true,
-            }));
-            setSnackbarMessage(`${courseTitle} has been added to your cart!`);
-            setOpenSnackbar(true);
-        }
-    };
-
-    // remove from cart
-    const handleRemoveFromCart = () => {
-        if (selectedCourse) {
-            const { courseId, courseTitle } = selectedCourse;
-            setCartItems((prevCart) => {
-                const updatedCart = { ...prevCart };
-                delete updatedCart[courseId];
-                return updatedCart;
-            });
-            setSnackbarMessage(`${courseTitle} has been removed from your cart.`);
-            setOpenSnackbar(true);
-        }
-        setOpenDialog(false);
-    };
 
     // course filter
     const popularCourses = courses.filter((course) => course.isPopular);
@@ -214,146 +195,187 @@ function Home() {
         setOpenFavoriteDialog(false);
     };
 
+    // handle toggle join
+    const handleJoinClick = (courseId, courseTitle) => {
+        setCourseToJoin({ courseId, courseTitle });
+        setOpenJoinDialog(true);
+    };
+
+    const handleJoinConfirm = () => {
+        if (courseToJoin) {
+            const { courseId, courseTitle } = courseToJoin;
+            setJoinedCourses((prevJoined) => ({
+                ...prevJoined,
+                [courseId]: !prevJoined[courseId],
+            }));
+            setSnackbarMessage(
+                joinedCourses[courseId]
+                    ? `You have unjoined ${courseTitle}`
+                    : `You have joined ${courseTitle}`
+            );
+            setOpenSnackbar(true);
+        }
+        setOpenJoinDialog(false);
+    };
+
     return (
-        <div>
+        <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
             <ResponsiveAppBar />
             <Banner />
-            <Container sx={{ mt: 4 }}>
-                {/* cat carousel */}
-                <Box sx={{ mb: 4, position: "relative" }}>
-                    <Slider {...carouselSettings}>
-                        {uniqueCategories.map((category, index) => (
-                            <Box key={index} sx={{ textAlign: "center", margin: "0px 5px" }}>
-                                <Chip
-                                    label={category}
-                                    onClick={() => handleCategoryClick(category)}
-                                    sx={{
-                                        m: 0,
-                                        p: 1,
-                                        borderRadius: "20px",
+            <Container sx={{ mt: 4, flex: 1 }}>
+                {loading ? (
+                    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "50vh" }}>
+                        <CircularProgress sx={{ color: "#1C1E53" }} />
+                    </Box>
+                ) : (
+                    <>
+                        {/* cat carousel */}
+                        <Box sx={{ mb: 4, position: "relative" }}>
+                            <Slider {...carouselSettings}>
+                                {uniqueCategories.map((category, index) => (
+                                    <Box key={index} sx={{ textAlign: "center", margin: "0px 5px" }}>
+                                        <Chip
+                                            label={category}
+                                            onClick={() => handleCategoryClick(category)}
+                                            sx={{
+                                                m: 0,
+                                                p: 1,
+                                                borderRadius: "20px",
+                                                backgroundColor: "#1C1E53",
+                                                color: "white",
+                                                "&:hover": {
+                                                    backgroundColor: "#1C1E53",
+                                                },
+                                            }}
+                                        />
+                                    </Box>
+                                ))}
+                            </Slider>
+                        </Box>
+
+                        {/* popular courses */}
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, color: "#1C1E53" }}>
+                            <Typography variant="h4" gutterBottom textAlign="start">
+                                Popular Courses
+                            </Typography>
+                        </Box>
+                        <Box
+                            sx={{
+                                display: "grid",
+                                gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+                                gap: 4,
+                                mb: 4,
+                            }}
+                        >
+                            {currentPopularCourses.map((course) => {
+                                const isFavorite = favorites[course.id] || false;
+                                const isJoined = joinedCourses[course.id] || false;
+
+                                return (
+                                    <CourseCard
+                                        key={course.id}
+                                        course={course}
+                                        isFavorite={isFavorite}
+                                        toggleFavorite={toggleFavorite}
+                                        isJoined={isJoined}
+                                        toggleJoin={handleJoinClick}
+                                    />
+                                );
+                            })}
+                        </Box>
+
+                        {/* pagination */}
+                        <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
+                            <Pagination
+                                count={Math.ceil(popularCourses.length / 6)}
+                                page={currentPopularPage}
+                                onChange={handlePopularPageChange}
+                                sx={{
+                                    "& .MuiPaginationItem-root": {
+                                        color: "#1C1E53",
+                                    },
+                                    "& .MuiPaginationItem-previousNext": {
+                                        color: "#1C1E53",
+                                    },
+                                    "& .MuiPaginationItem-root.Mui-selected": {
                                         backgroundColor: "#1C1E53",
                                         color: "white",
-                                        "&:hover": {
-                                            backgroundColor: "#1C1E53",
-                                        },
-                                    }}
-                                />
-                            </Box>
-                        ))}
-                    </Slider>
-                </Box>
-
-                {/* popular courses */}
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, color: "#1C1E53" }}>
-                    <Typography variant="h4" gutterBottom textAlign="start">
-                        Popular Courses
-                    </Typography>
-                </Box>
-                <Box
-                    sx={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-                        gap: 4,
-                        mb: 4,
-                    }}
-                >
-                    {currentPopularCourses.map((course) => {
-                        const isFavorite = favorites[course.id] || false;
-                        const isInCart = cartItems[course.id] || false;
-
-                        return (
-                            <CourseCard
-                                key={course.id}
-                                course={course}
-                                isFavorite={isFavorite}
-                                isInCart={isInCart}
-                                toggleFavorite={toggleFavorite}
-                                handleCartToggle={handleCartToggle}
+                                    },
+                                }}
                             />
-                        );
-                    })}
-                </Box>
-
-                {/* pagination */}
-                <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
-                    <Pagination
-                        count={Math.ceil(popularCourses.length / 6)}
-                        page={currentPopularPage}
-                        onChange={handlePopularPageChange}
-                        sx={{
-                            "& .MuiPaginationItem-root": {
-                                color: "#1C1E53",
-                            },
-                            "& .MuiPaginationItem-previousNext": {
-                                color: "#1C1E53",
-                            },
-                            "& .MuiPaginationItem-root.Mui-selected": {
-                                backgroundColor: "#1C1E53",
-                                color: "white",
-                            },
-                        }}
-                    />
-                </Box>
+                        </Box>
+                    </>
+                )}
             </Container>
+
+            {/* footer */}
+            <Footer />
 
             {/* cat modal */}
             <Modal
-                open={openCategoryModal}
-                onClose={() => setOpenCategoryModal(false)}
-                aria-labelledby="category-modal-title"
-                aria-describedby="category-modal-description"
-            >
-                <Box
-                    sx={{
-                        position: "absolute",
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                        width: "80%",
-                        maxWidth: 800,
-                        bgcolor: "background.paper",
-                        boxShadow: 24,
-                        p: 4,
-                        borderRadius: 2,
-                    }}
-                >
-                    <Typography id="category-modal-title" variant="h6" component="h2" sx={{ mb: 2 }}>
-                        Courses in {selectedCategory}
-                    </Typography>
-                    <Box
-                        sx={{
-                            display: "grid",
-                            gridTemplateColumns: "repeat(2, 1fr)",
-                            gap: 4,
-                            maxHeight: "60vh",
-                            overflowY: "auto",
-                        }}
-                    >
-                        {categoryCourses.map((course) => {
-                            const isFavorite = favorites[course.id] || false;
-                            const isInCart = cartItems[course.id] || false;
+    open={openCategoryModal}
+    onClose={() => setOpenCategoryModal(false)}
+    aria-labelledby="category-modal-title"
+    aria-describedby="category-modal-description"
+>
+    <Box
+        sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "80%",
+            maxWidth: 800,
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 2,
+        }}
+    >
+        {/* إضافة أيقونة الإغلاق في الزاوية اليمنى العليا */}
+        <IconButton
+            aria-label="close"
+            onClick={() => setOpenCategoryModal(false)}
+            sx={{
+                position: "absolute",
+                right: 8,
+                top: 8,
+                color: "#1C1E53",
+            }}
+        >
+            <CloseIcon />
+        </IconButton>
 
-                            return (
-                                <CourseCard
-                                    key={course.id}
-                                    course={course}
-                                    isFavorite={isFavorite}
-                                    isInCart={isInCart}
-                                    toggleFavorite={toggleFavorite}
-                                    handleCartToggle={handleCartToggle}
-                                />
-                            );
-                        })}
-                    </Box>
-                    <Button
-                        variant="contained"
-                        onClick={() => setOpenCategoryModal(false)}
-                        sx={{ mt: 2, backgroundColor: "#1C1E53" }}
-                    >
-                        Close
-                    </Button>
-                </Box>
-            </Modal>
+        <Typography id="category-modal-title" variant="h6" component="h2" sx={{ mb: 2 }}>
+            Courses in {selectedCategory}
+        </Typography>
+        <Box
+            sx={{
+                display: "grid",
+                gridTemplateColumns: "repeat(2, 1fr)",
+                gap: 4,
+                maxHeight: "60vh",
+                overflowY: "auto",
+            }}
+        >
+            {categoryCourses.map((course) => {
+                const isFavorite = favorites[course.id] || false;
+                const isJoined = joinedCourses[course.id] || false;
+
+                return (
+                    <CourseCard
+                        key={course.id}
+                        course={course}
+                        isFavorite={isFavorite}
+                        toggleFavorite={toggleFavorite}
+                        isJoined={isJoined}
+                        toggleJoin={handleJoinClick}
+                    />
+                );
+            })}
+        </Box>
+    </Box>
+</Modal>
 
             {/* fav confirm dialog */}
             <ConfirmDialog
@@ -371,15 +393,21 @@ function Home() {
                 onClose={() => setOpenSnackbar(false)}
             />
 
-            {/* cart confirm dialog */}
+            {/* toggle join confirm dialog */}
             <ConfirmDialog
-                open={openDialog}
-                onClose={() => setOpenDialog(false)}
-                onConfirm={handleRemoveFromCart}
-                title="Remove Course"
-                message={`Are you sure you want to remove ${selectedCourse?.courseTitle} from your cart?`}
+                open={openJoinDialog}
+                onClose={() => setOpenJoinDialog(false)}
+                onConfirm={handleJoinConfirm}
+                title={joinedCourses[courseToJoin?.courseId] ? "Unjoin Course" : "Join Course"}
+                message={
+                    joinedCourses[courseToJoin?.courseId]
+                        ? `Are you sure you want to unjoin ${courseToJoin?.courseTitle}?`
+                        : `Are you sure you want to join ${courseToJoin?.courseTitle}?`
+                }
+                confirmText={joinedCourses[courseToJoin?.courseId] ? "Unjoin" : "Join"}
+                cancelText="Cancel"
             />
-        </div>
+        </Box>
     );
 }
 

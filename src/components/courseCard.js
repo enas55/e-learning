@@ -1,8 +1,8 @@
 import React from "react";
 import { Card, CardContent, CardMedia, Typography, Button, Box, IconButton } from "@mui/material";
-import { ShoppingCart, Favorite, FavoriteBorder } from "@mui/icons-material";
+import { Favorite, FavoriteBorder } from "@mui/icons-material";
 
-function CourseCard({ course, isFavorite, isInCart, toggleFavorite, handleCartToggle }) {
+function CourseCard({ course, isFavorite, toggleFavorite, isJoined, toggleJoin }) {
     return (
         <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
             <CardMedia component="img" height="140" image={course.image} alt={course.title} />
@@ -22,13 +22,23 @@ function CourseCard({ course, isFavorite, isInCart, toggleFavorite, handleCartTo
                 </Button>
 
                 <Box>
-                    <IconButton
-                        color={isInCart ? "success" : "default"}
-                        onClick={() => handleCartToggle(course.id, course.title)}
+                    <Button
+                        variant={isJoined ? "outlined" : "contained"}
+                        onClick={() => toggleJoin(course.id, course.title)}
+                        sx={{
+                            backgroundColor: isJoined ? "transparent" : "#1C1E53",
+                            color: isJoined ? "#4CAF50" : "white",
+                            borderColor: isJoined ? "#4CAF50" : "transparent",
+                            mr: 1,
+                            '&:hover': {
+                                backgroundColor: isJoined ? "transparent" : "#1C1E53",
+                                borderColor: isJoined ? "#4CAF50" : "transparent",
+                            }
+                        }}
                     >
-                        <ShoppingCart />
-                    </IconButton>
-
+                        {isJoined ? "Joined" : "Join"}
+                    </Button>
+                    
                     <IconButton
                         color={isFavorite ? "error" : "default"}
                         onClick={() => toggleFavorite(course.id, course.title)}
