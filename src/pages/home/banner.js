@@ -1,10 +1,21 @@
-import React from "react";
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setLanguage } from '../../redux/store';
 import { Box, Typography, Container } from "@mui/material";
 import BannerImage from "../../assets/images/Illustration.png";
 import Image1 from "../../assets/images/Group 2618.png";
 import Image2 from "../../assets/images/Group 2535.png";
 
-const Banner = () => {
+function  Banner () {
+    const dispatch = useDispatch();
+    const { language, translations } = useSelector((state) => state.translation);
+    const t = translations[language].banner;
+
+    useEffect(() => {
+            const savedLanguage = localStorage.getItem('appLanguage') || 'en';
+            dispatch(setLanguage(savedLanguage));
+        }, [dispatch]);
+
     return (
         <Box
             sx={{
@@ -36,10 +47,10 @@ const Banner = () => {
                     }}
                 >
                     <Typography variant="h3" gutterBottom>
-                        Build and Achieve Your Dreams with EDUFREE
+                        {t.Main_Title}
                     </Typography>
                     <Typography variant="h6" sx={{ maxWidth: "600px", mb: 3 }}>
-                        EDUFREE is a free online course and training service designed to help you achieve your dreams in the field of technology.
+                        {t.Sub_Title}
                     </Typography>
                 </Box>
 

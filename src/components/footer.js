@@ -1,7 +1,18 @@
-import React from "react";
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setLanguage } from '../redux/store';
 import { Box, Typography, Link } from "@mui/material";
 
 function Footer ()  {
+    const dispatch = useDispatch();
+        const { language, translations } = useSelector((state) => state.translation);
+        const t = translations[language].footer;
+
+        useEffect(() => {
+                const savedLanguage = localStorage.getItem('appLanguage') || 'en';
+                dispatch(setLanguage(savedLanguage));
+            }, [dispatch]);
+
     return (
         <div>
 
@@ -27,55 +38,55 @@ function Footer ()  {
                 {/* edufree */}
                 <Box sx={{ flex: "3 3 600px", maxWidth: "500px" }}>
                     <Typography variant="h6" sx={{ fontWeight: "bold", marginBottom: "10px" }}>
-                        EDUFREE
+                        {t.Title}
                     </Typography>
                     <Typography variant="body2">
-                        Build and achieve your dreams with Edufree
+                        {t.SubTitle}
                     </Typography>
                 </Box>
 
                 {/* social media */}
                 <Box sx={{ flex: "1 1 200px", maxWidth: "300px" }}>
                     <Typography variant="h6" sx={{ fontWeight: "bold", marginBottom: "10px" }}>
-                        Social Media
+                        {t.Social_Account}
                     </Typography>
                     <Link href="#" color="inherit" sx={{ display: "block", marginBottom: "8px" }}>
-                        Instagram
+                        {t.Ins}
                     </Link>
                     <Link href="#" color="inherit" sx={{ display: "block", marginBottom: "8px" }}>
-                        Twitter
+                        {t.Twitter}
                     </Link>
                     <Link href="#" color="inherit" sx={{ display: "block", marginBottom: "8px" }}>
-                        LinkedIn
+                        {t.Linkedin}
                     </Link>
                 </Box>
 
                 {/* programs */}
                 <Box sx={{ flex: "1 1 200px", maxWidth: "300px" }}>
                     <Typography variant="h6" sx={{ fontWeight: "bold", marginBottom: "10px" }}>
-                        Programs
+                        {t.Programs}
                     </Typography>
                     <Link href="#" color="inherit" sx={{ display: "block", marginBottom: "8px" }}>
-                        Independent Learning
+                        {t.Independent_Learning}
                     </Link>
                     <Link href="#" color="inherit" sx={{ display: "block", marginBottom: "8px" }}>
-                        Finterpreneur
+                        {t.Finterpreneur}
                     </Link>
                 </Box>
 
                 {/* support */}
                 <Box sx={{ flex: "1 1 200px", maxWidth: "300px" }}>
                     <Typography variant="h6" sx={{ fontWeight: "bold", marginBottom: "10px" }}>
-                        SUPPORT
+                        {t.SUPPORT}
                     </Typography>
                     <Link href="#" color="inherit" sx={{ display: "block", marginBottom: "8px" }}>
-                        About Us
+                        {t.About_Us}
                     </Link>
                     <Link href="#" color="inherit" sx={{ display: "block", marginBottom: "8px" }}>
-                        Terms
+                        {t.Terms}
                     </Link>
                     <Link href="#" color="inherit" sx={{ display: "block", marginBottom: "8px" }}>
-                        Privacy Policy
+                        {t.Privacy_Policy}
                     </Link>
                 </Box>
             </Box>
@@ -94,10 +105,10 @@ function Footer ()  {
                 }}
             >
                 <Typography variant="body2">
-                    <strong>Email:</strong> enastaher06@gmail.com
+                    <strong>{t.Email}</strong> enastaher06@gmail.com
                 </Typography>
                 <Typography variant="body2">
-                    <strong>Telephone:</strong> +201012423789
+                    <strong>{t.Telephone}</strong> +201012423789
                 </Typography>
             </Box>
         </Box>
@@ -117,19 +128,19 @@ function Footer ()  {
         }}
     >
         <Typography variant="body2" color="#1C1E53" sx={{marginTop: "10px"}}>
-            © Copyright EDUFREE 2021 - 2022
+            {t.Copyright}
         </Typography>
 
         {/* bottom nav links */}
         <Box sx={{ display: "flex", justifyContent: "center", gap: "15px", marginTop: "10px", }}>
             <Link href="#" color="#1C1E53">
-                Home
+                {t.Home}
             </Link>
             <Link href="#" color="#1C1E53">
-                FAQ
+                {t.FAQ}
             </Link>
             <Link href="#" color="#1C1E53">
-                Blog
+                {t.Blog}
             </Link>
         </Box>
     </Box>

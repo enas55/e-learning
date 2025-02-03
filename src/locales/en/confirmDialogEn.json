@@ -1,0 +1,12 @@
+{
+    "RemoveFavTitle" : "Remove from Favorites",
+    "RemoveFavMsg" : "Are you sure you want to remove this course from your favorites?",
+    "Unjoin_Course_Title" : "Unjoin Course",
+    "Join_Course_Title" : "Join Course",
+    "Unjoin_Course_Msg" : "Are you sure you want to unjoin this course?",
+    "join_Course_Msg" : "Are you sure you want to join this course?",
+    "Confirm_Text_Unjoin" : "Unjoin",
+    "Confirm_Text_Join" : "Join",
+    "Cancel_Text" : "Cancel",
+    "Confirm_Text_Fav" : "Remove"
+}

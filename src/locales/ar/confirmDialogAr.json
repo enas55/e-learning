@@ -1,0 +1,12 @@
+{
+    "RemoveFavTitle" : "حذف من المفضلة",
+    "RemoveFavMsg" : "هل أنت متأكد انك تريد حذف هذا الكورس من المفضلة؟",
+    "Unjoin_Course_Title" : "مغادرة الكورس",
+    "Join_Course_Title" : "الإنضمام الى الكورس",
+    "Unjoin_Course_Msg" : "هل انت متأكد انك تريد مغادرة هذا الكورس؟",
+    "join_Course_Msg" : "هل انت متأكد انك تريد الانضمام الى هذا الكورس؟",
+    "Confirm_Text_Unjoin" : "مغادرة",
+    "Confirm_Text_Join" : "إنضمام",
+    "Cancel_Text" : "إلغاء",
+    "Confirm_Text_Fav" : "حذف"
+}
