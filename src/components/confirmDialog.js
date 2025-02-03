@@ -10,10 +10,10 @@ const ConfirmDialog = ({ open, onClose, onConfirm, title, message, confirmText, 
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose} sx={{ color: "#1C1E53" }}>
-                    {cancelText || "Cancel"}
+                    {cancelText}
                 </Button>
                 <Button onClick={onConfirm} sx={{ color: "#1C1E53" }}>
-                    {confirmText || "Confirm"}
+                    {confirmText}
                 </Button>
             </DialogActions>
         </Dialog>

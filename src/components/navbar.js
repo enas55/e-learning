@@ -1,4 +1,7 @@
-import * as React from 'react';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setLanguage } from '../redux/store';
+import { Link, useLocation } from 'react-router-dom';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -14,21 +17,25 @@ import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import LanguageIcon from '@mui/icons-material/Language';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-
-const pages = ['Home', 'All Courses', 'Favorite'];
-const settings = ['Profile', 'Dashboard', 'Logout'];
 
 function ResponsiveAppBar() {
+    const dispatch = useDispatch();
+    const { language, translations } = useSelector((state) => state.translation);
+    const t = translations[language].navbar;
+
     const [anchorElNav, setAnchorElNav] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
-    const [language, setLanguage] = useState('en');
     const location = useLocation();
+
+    useEffect(() => {
+        const savedLanguage = localStorage.getItem('appLanguage') || 'en';
+        dispatch(setLanguage(savedLanguage));
+    }, [dispatch]);
 
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
     };
+
     const handleOpenUserMenu = (event) => {
         setAnchorElUser(event.currentTarget);
     };
@@ -42,20 +49,17 @@ function ResponsiveAppBar() {
     };
 
     const toggleLanguage = () => {
-        setLanguage((prevLanguage) => (prevLanguage === 'en' ? 'ar' : 'en'));
+        const newLanguage = language === 'en' ? 'ar' : 'en';
+        dispatch(setLanguage(newLanguage));
     };
 
-    const isActive = (page) => {
-        const path = location.pathname;
-        if (page === 'Home') {
-            return path === '/';
-        } else if (page === 'All Courses') {
-            return path === '/all-courses';
-        } else if (page === 'Favorite') {
-            return path === '/favorite';
-        }
-        return false;
-    };
+    const pages = [
+        { label: t.Home, path: '/' },
+        { label: t.All_courses, path: '/all-courses' },
+        { label: t.Favorite, path: '/favorite' },
+    ];
+
+    const isActive = (path) => location.pathname === path;
 
     return (
         <AppBar position="static" sx={{ backgroundColor: '#1C1E53' }}>
@@ -65,8 +69,8 @@ function ResponsiveAppBar() {
                     <Typography
                         variant="h6"
                         noWrap
-                        component="a"
-                        href="/"
+                        component={Link}
+                        to="/"
                         sx={{
                             mr: 2,
                             display: { xs: 'none', md: 'flex' },
@@ -77,13 +81,13 @@ function ResponsiveAppBar() {
                             textDecoration: 'none',
                         }}
                     >
-                        EDUFREE
+                        {t.Logo}
                     </Typography>
 
                     <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
                         <IconButton
                             size="large"
-                            aria-label="account of current user"
+                            aria-label="menu"
                             aria-controls="menu-appbar"
                             aria-haspopup="true"
                             onClick={handleOpenNavMenu}
@@ -94,45 +98,29 @@ function ResponsiveAppBar() {
                         <Menu
                             id="menu-appbar"
                             anchorEl={anchorElNav}
-                            anchorOrigin={{
-                                vertical: 'bottom',
-                                horizontal: 'left',
-                            }}
+                            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
                             keepMounted
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'left',
-                            }}
+                            transformOrigin={{ vertical: 'top', horizontal: 'left' }}
                             open={Boolean(anchorElNav)}
                             onClose={handleCloseNavMenu}
                             sx={{ display: { xs: 'block', md: 'none' } }}
                         >
-                            {pages.map((page) => (
-                                <MenuItem key={page} onClick={handleCloseNavMenu}>
+                            {pages.map(({ label, path }) => (
+                                <MenuItem key={label} onClick={handleCloseNavMenu}>
                                     <Typography sx={{ textAlign: 'center' }}>
-                                        {page === 'Home' ? (
-                                            <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
-                                                {page}
-                                            </Link>
-                                        ) : page === 'All Courses' ? (
-                                            <Link to="/all-courses" style={{ textDecoration: 'none', color: 'inherit' }}>
-                                                {page}
-                                            </Link>
-                                        ) : (
-                                            page
-                                        )}
+                                        <Link to={path} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                            {label}
+                                        </Link>
                                     </Typography>
                                 </MenuItem>
                             ))}
                         </Menu>
                     </Box>
 
-                    <Box sx={{ display: { xs: 'none', md: 'flex' } }} />
-
                     <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', ml: 2 }}>
                         <TextField
                             variant="outlined"
-                            placeholder="Search..."
+                            placeholder={t.Search_label}
                             size="small"
                             sx={{
                                 backgroundColor: 'white',
@@ -143,36 +131,25 @@ function ResponsiveAppBar() {
                     </Box>
 
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                        {pages.map((page) => (
+                        {pages.map(({ label, path }) => (
                             <Button
-                                key={page}
-                                onClick={handleCloseNavMenu}
-                                sx={{ 
-                                    my: 2, 
-                                    color: isActive(page) ? '#FCD980' :'white', 
+                                key={label}
+                                component={Link}
+                                to={path}
+                                sx={{
+                                    my: 2,
+                                    color: isActive(path) ? '#FCD980' : 'white',
                                     display: 'block',
-                                    textDecoration: isActive(page) ? 'underline' : 'none',
+                                    textDecoration: isActive(path) ? 'underline' : 'none',
                                 }}
                             >
-                                {page === 'Home' ? (
-                                    <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
-                                        {page}
-                                    </Link>
-                                ) : page === 'All Courses' ? (
-                                    <Link to="/all-courses" style={{ textDecoration: 'none', color: 'inherit' }}>
-                                        {page}
-                                    </Link>
-                                ) : (
-                                    page
-                                )}
+                                {label}
                             </Button>
                         ))}
                     </Box>
 
-                    
-
-                    <Box sx={{ flexGrow: 0, ml : 2}}>
-                        <Tooltip title="Open settings">
+                    <Box sx={{ flexGrow: 0, ml: 2 }}>
+                        <Tooltip title="User settings">
                             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                                 <Avatar alt="User" src="/static/images/avatar/2.jpg" />
                             </IconButton>
@@ -181,19 +158,13 @@ function ResponsiveAppBar() {
                             sx={{ mt: '45px' }}
                             id="menu-appbar"
                             anchorEl={anchorElUser}
-                            anchorOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
+                            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
                             keepMounted
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
+                            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                             open={Boolean(anchorElUser)}
                             onClose={handleCloseUserMenu}
                         >
-                            {settings.map((setting) => (
+                            {[t.Profile, t.Dashboard, t.Logout].map((setting) => (
                                 <MenuItem key={setting} onClick={handleCloseUserMenu}>
                                     <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
                                 </MenuItem>

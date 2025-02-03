@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from 'react-redux';
+import { setLanguage } from '../../redux/store';
 import { useLocation } from "react-router-dom";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase/firebaseConfig";
@@ -33,6 +35,16 @@ function Home() {
     const [courseToJoin, setCourseToJoin] = useState(null);
     const [joinedCourses, setJoinedCourses] = useState({});
     const [openJoinDialog, setOpenJoinDialog] = useState(false);
+    const dispatch = useDispatch();
+    const { language, translations } = useSelector((state) => state.translation);
+    const t = translations[language].confirmDialog;
+    const titleT = translations[language].filterAndMainTiltles;
+    const snackbarT = translations[language].snackbar;
+    
+        useEffect(() => {
+                const savedLanguage = localStorage.getItem('appLanguage') || 'en';
+                dispatch(setLanguage(savedLanguage));
+            }, [dispatch]);
 
     useEffect(() => {
         document.title = "Home";
@@ -45,7 +57,7 @@ function Home() {
                 const coursesData = querySnapshot.docs.map((doc) => ({
                     id: doc.id,
                     ...doc.data(),
-                    title: doc.data().title || "Title not found",
+                    title: doc.data().title,
                 }));
                 setCourses(coursesData);
             } catch (error) {
@@ -156,7 +168,7 @@ function Home() {
         ],
     };
 
-    // Category handling
+    // category handling
     const uniqueCategories = Array.from(new Set(courses.flatMap((course) => course.category)));
 
     const handleCategoryClick = (category) => {
@@ -176,20 +188,20 @@ function Home() {
                 ...prevFavorites,
                 [courseId]: true,
             }));
-            setSnackbarMessage(`${courseTitle} has been added to your favorites`);
+            setSnackbarMessage(snackbarT.Snackbar_Added_to_Fav);
             setOpenSnackbar(true);
         }
     };
 
     const handleRemoveFromFavorites = () => {
         if (courseToRemoveFromFavorites) {
-            const { courseId, courseTitle } = courseToRemoveFromFavorites;
+            const { courseId} = courseToRemoveFromFavorites;
             setFavorites((prevFavorites) => {
                 const updatedFavorites = { ...prevFavorites };
                 delete updatedFavorites[courseId];
                 return updatedFavorites;
             });
-            setSnackbarMessage(`${courseTitle} has been removed from your favorites`);
+            setSnackbarMessage(snackbarT.Snackbar_Remove_From_Fav);
             setOpenSnackbar(true);
         }
         setOpenFavoriteDialog(false);
@@ -203,15 +215,15 @@ function Home() {
 
     const handleJoinConfirm = () => {
         if (courseToJoin) {
-            const { courseId, courseTitle } = courseToJoin;
+            const { courseId} = courseToJoin;
             setJoinedCourses((prevJoined) => ({
                 ...prevJoined,
                 [courseId]: !prevJoined[courseId],
             }));
             setSnackbarMessage(
                 joinedCourses[courseId]
-                    ? `You have unjoined ${courseTitle}`
-                    : `You have joined ${courseTitle}`
+                    ? snackbarT.Snackbar_Unjoined_Courses
+                    : snackbarT.Snackbar_Joined_Courses
             );
             setOpenSnackbar(true);
         }
@@ -256,7 +268,7 @@ function Home() {
                         {/* popular courses */}
                         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, color: "#1C1E53" }}>
                             <Typography variant="h4" gutterBottom textAlign="start">
-                                Popular Courses
+                                {titleT.Popular_Courses_Title}
                             </Typography>
                         </Box>
                         <Box
@@ -382,8 +394,10 @@ function Home() {
                 open={openFavoriteDialog}
                 onClose={() => setOpenFavoriteDialog(false)}
                 onConfirm={handleRemoveFromFavorites}
-                title="Remove from Favorites"
-                message={`Are you sure you want to remove ${courseToRemoveFromFavorites?.courseTitle} from your favorites?`}
+                title= {t.RemoveFavTitle}
+                message={t.RemoveFavMsg}
+                confirmText={t.Confirm_Text_Fav}
+                cancelText={t.Cancel_Text}
             />
 
             {/* snackbar */}
@@ -398,14 +412,14 @@ function Home() {
                 open={openJoinDialog}
                 onClose={() => setOpenJoinDialog(false)}
                 onConfirm={handleJoinConfirm}
-                title={joinedCourses[courseToJoin?.courseId] ? "Unjoin Course" : "Join Course"}
+                title={joinedCourses[courseToJoin?.courseId] ? t.Unjoin_Course_Title : t.oin_Course_Title}
                 message={
                     joinedCourses[courseToJoin?.courseId]
-                        ? `Are you sure you want to unjoin ${courseToJoin?.courseTitle}?`
-                        : `Are you sure you want to join ${courseToJoin?.courseTitle}?`
+                        ? t.Unjoin_Course_Msg
+                        : t.join_Course_Msg
                 }
-                confirmText={joinedCourses[courseToJoin?.courseId] ? "Unjoin" : "Join"}
-                cancelText="Cancel"
+                confirmText={joinedCourses[courseToJoin?.courseId] ? t.Confirm_Text_Unjoin : t.Confirm_Text_Join}
+                cancelText= {t.Cancel_Text}
             />
         </Box>
     );

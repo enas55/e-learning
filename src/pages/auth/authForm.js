@@ -28,7 +28,7 @@ function AuthForm() {
     const navigate = useNavigate();
 
     const { language, translations } = useSelector((state) => state.translation);
-    const t = translations[language];
+    const t = translations[language].auth;
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');

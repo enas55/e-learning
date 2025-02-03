@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from 'react-redux';
+import { setLanguage } from '../redux/store';
 import { useLocation } from "react-router-dom";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
@@ -39,6 +41,15 @@ function AllCourses() {
     const [courseToJoin, setCourseToJoin] = useState(null);
     const [joinedCourses, setJoinedCourses] = useState({});
     const [openJoinDialog, setOpenJoinDialog] = useState(false);
+    const dispatch = useDispatch();
+    const { language, translations } = useSelector((state) => state.translation);
+    const t = translations[language].confirmDialog;
+    const filterAndTitleT = translations[language].filterAndMainTiltles;
+
+    useEffect(() => {
+        const savedLanguage = localStorage.getItem('appLanguage') || 'en';
+        dispatch(setLanguage(savedLanguage));
+    }, [dispatch]);
 
     useEffect(() => {
         document.title = "All Courses";
@@ -190,7 +201,7 @@ function AllCourses() {
                             }}
                         >
                             <Typography variant="h4" gutterBottom textAlign="start">
-                                All Courses
+                                {filterAndTitleT.All_Courses_Title}
                             </Typography>
                             <Button
                                 variant="contained"
@@ -203,7 +214,7 @@ function AllCourses() {
                                     },
                                 }}
                             >
-                                Filter
+                                {filterAndTitleT.Filter_Title}
                             </Button>
                         </Box>
 
@@ -215,7 +226,7 @@ function AllCourses() {
                         >
                             <Box sx={{ p: 2, minWidth: 200 }}>
                                 <Typography variant="h6" sx={{ color: "#1C1E53" }}>
-                                    Filter by:
+                                    {filterAndTitleT.Filter_By}
                                 </Typography>
                                 <FormControl fullWidth sx={{ mt: 2 }}>
                                     <InputLabel
@@ -226,7 +237,7 @@ function AllCourses() {
                                             },
                                         }}
                                     >
-                                        Price
+                                        {filterAndTitleT.Filter_Price}
                                     </InputLabel>
                                     <Select
                                         value={priceFilter}
@@ -245,8 +256,8 @@ function AllCourses() {
                                         }}
                                     >
                                         <MenuItem value="">None</MenuItem>
-                                        <MenuItem value="lowToHigh">Low to High</MenuItem>
-                                        <MenuItem value="highToLow">High to Low</MenuItem>
+                                        <MenuItem value="lowToHigh">{filterAndTitleT.Low_To_High_Text}</MenuItem>
+                                        <MenuItem value="highToLow">{filterAndTitleT.High_To_High_Text}</MenuItem>
                                     </Select>
                                 </FormControl>
                                 <FormControl fullWidth sx={{ mt: 2 }}>
@@ -258,7 +269,7 @@ function AllCourses() {
                                             },
                                         }}
                                     >
-                                        Category
+                                        {filterAndTitleT.Category}
                                     </InputLabel>
                                     <Select
                                         value={categoryFilter}
@@ -293,7 +304,7 @@ function AllCourses() {
                                             color: "white",
                                         }}
                                     >
-                                        Apply
+                                        {filterAndTitleT.Apply}
                                     </Button>
                                     <Button
                                         variant="outlined"
@@ -303,7 +314,7 @@ function AllCourses() {
                                             color: "#1C1E53",
                                         }}
                                     >
-                                        Reset
+                                        {filterAndTitleT.Reset}
                                     </Button>
                                 </Box>
                             </Box>
@@ -358,15 +369,15 @@ function AllCourses() {
                 )}
             </Container>
 
-            <Footer/>
+            <Footer />
 
             {/* fav confirm dialog */}
             <ConfirmDialog
                 open={openFavoriteDialog}
                 onClose={() => setOpenFavoriteDialog(false)}
                 onConfirm={handleRemoveFromFavorites}
-                title="Remove from Favorites"
-                message={`Are you sure you want to remove ${courseToRemoveFromFavorites?.courseTitle} from your favorites?`}
+                title={t.RemoveFavTitle}
+                message={t.RemoveFavMsg}
             />
 
             {/* snackbar */}
@@ -381,14 +392,14 @@ function AllCourses() {
                 open={openJoinDialog}
                 onClose={() => setOpenJoinDialog(false)}
                 onConfirm={handleJoinConfirm}
-                title={joinedCourses[courseToJoin?.courseId] ? "Unjoin Course" : "Join Course"}
+                title={joinedCourses[courseToJoin?.courseId] ? t.Unjoin_Course_Title : t.oin_Course_Title}
                 message={
                     joinedCourses[courseToJoin?.courseId]
-                        ? `Are you sure you want to unjoin ${courseToJoin?.courseTitle}?`
-                        : `Are you sure you want to join ${courseToJoin?.courseTitle}?`
+                        ? t.Unjoin_Course_Msg
+                        : t.join_Course_Msg
                 }
-                confirmText={joinedCourses[courseToJoin?.courseId] ? "Unjoin" : "Join"}
-                cancelText="Cancel"
+                confirmText={joinedCourses[courseToJoin?.courseId] ? t.Confirm_Text_Unjoin : t.Confirm_Text_Join}
+                cancelText={t.Cancel_Text}
             />
 
         </div>
