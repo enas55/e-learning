@@ -15,46 +15,78 @@ import filterAndMainTitlesEn from '../locales/en/filter_and_main_titlesEn.json';
 import filterAndMainTitlesAr from '../locales/ar/filter_and_main_titlesAr.json';
 import snackbarEn from '../locales/en/snackbarEn.json';
 import snackbarAr from '../locales/ar/snackbarAr.json';
+import courseDetailsEn from '../locales/en/courseDetailsEn.json';
+import courseDetailsAr from '../locales/ar/courseDetailsAr.json';
+import favoriteEn from '../locales/en/favoriteEn.json';
+import favoriteAr from '../locales/ar/favoriteAr.json';
 
-
-const translationSlice = createSlice({
-    name: 'translation',
-    initialState: {
-        language: 'en',
-        translations: {
-            en: { navbar: navbarEn, 
-                auth: authEn, 
-                banner: bannerEn, 
-                footer: footerEn, 
-                courseCard: courseCardEn, 
-                confirmDialog: confirmDialogEn,
-                filterAndMainTiltles : filterAndMainTitlesEn,
-                snackbar : snackbarEn
-            },
-            ar: { navbar: navbarAr, 
-                auth: authAr, 
-                banner: bannerAr, 
-                footer: footerAr, 
-                courseCard: courseCardAr, 
-                confirmDialog: confirmDialogAr,
-                filterAndMainTiltles : filterAndMainTitlesAr,
-                snackbar : snackbarAr
-            },
-        },
+// Fav slice
+const favoritesSlice = createSlice({
+  name: 'favorites',
+  initialState: {
+    favoriteCourses: [],
+  },
+  reducers: {
+    addFavorite: (state, action) => {
+      state.favoriteCourses.push(action.payload);
     },
-    reducers: {
-        setLanguage: (state, action) => {
-            state.language = action.payload;
-            localStorage.setItem('appLanguage', action.payload);
-        },
+    removeFavorite: (state, action) => {
+      state.favoriteCourses = state.favoriteCourses.filter(course => course.id !== action.payload);
     },
+    setFavorites: (state, action) => {
+      state.favoriteCourses = action.payload;
+    },
+  },
 });
 
+export const { addFavorite, removeFavorite, setFavorites } = favoritesSlice.actions;
 
-const store = configureStore({
-    reducer: {
-        translation: translationSlice.reducer,
+// translation slice
+const translationSlice = createSlice({
+  name: 'translation',
+  initialState: {
+    language: 'en',
+    translations: {
+      en: {
+        navbar: navbarEn,
+        auth: authEn,
+        banner: bannerEn,
+        footer: footerEn,
+        courseCard: courseCardEn,
+        confirmDialog: confirmDialogEn,
+        filterAndMainTiltles: filterAndMainTitlesEn,
+        snackbar: snackbarEn,
+        courseDetails : courseDetailsEn,
+        favorite: favoriteEn
+      },
+      ar: {
+        navbar: navbarAr,
+        auth: authAr,
+        banner: bannerAr,
+        footer: footerAr,
+        courseCard: courseCardAr,
+        confirmDialog: confirmDialogAr,
+        filterAndMainTiltles: filterAndMainTitlesAr,
+        snackbar: snackbarAr,
+        courseDetails: courseDetailsAr,
+        favorite: favoriteAr
+      },
     },
+  },
+  reducers: {
+    setLanguage: (state, action) => {
+      state.language = action.payload;
+      localStorage.setItem('appLanguage', action.payload);
+    },
+  },
+});
+
+// store
+const store = configureStore({
+  reducer: {
+    favorites: favoritesSlice.reducer,
+    translation: translationSlice.reducer,
+  },
 });
 
 export const { setLanguage } = translationSlice.actions;

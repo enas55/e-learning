@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { setLanguage } from '../../redux/store';
-import { useLocation } from "react-router-dom";
-import { collection, getDocs, doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { setLanguage, setFavorites, addFavorite, removeFavorite } from '../../redux/store';
+import { useLocation, useNavigate } from "react-router-dom"; // استيراد useNavigate
+import { collection, getDocs, doc, updateDoc, arrayUnion, arrayRemove, getDoc } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { db } from "../../firebase/firebaseConfig";
 import { Container, Box, Typography, Pagination, IconButton, Chip, Modal, CircularProgress } from "@mui/material";
@@ -19,7 +19,6 @@ import CloseIcon from "@mui/icons-material/Close";
 
 function Home() {
     const [courses, setCourses] = useState([]);
-    const [favorites, setFavorites] = useState({});
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
     const [openFavoriteDialog, setOpenFavoriteDialog] = useState(false);
@@ -39,20 +38,37 @@ function Home() {
     const t = translations[language].confirmDialog;
     const titleT = translations[language].filterAndMainTiltles;
     const snackbarT = translations[language].snackbar;
-
     const [userId, setUserId] = useState(null);
+    const favoriteCourses = useSelector((state) => state.favorites.favoriteCourses);
+    const navigate = useNavigate(); // استخدام useNavigate
+
+    const loadFavorites = useCallback(async (userId) => {
+        try {
+            const userRef = doc(db, "users", userId);
+            const userDoc = await getDoc(userRef);
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                dispatch(setFavorites(userData.favoriteCourses || []));
+            }
+        } catch (error) {
+            console.error("Error loading favorites:", error);
+        }
+    }, [dispatch]);
+
     useEffect(() => {
         const auth = getAuth();
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
                 setUserId(user.uid);
+                loadFavorites(user.uid);
+                loadJoinedCourses(user.uid);
             } else {
                 setUserId(null);
             }
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [loadFavorites]);
 
     useEffect(() => {
         const savedLanguage = localStorage.getItem('appLanguage') || 'en';
@@ -83,160 +99,29 @@ function Home() {
         fetchCourses();
     }, []);
 
-    // course filter
-    const popularCourses = courses.filter((course) => course.isPopular);
-    const indexOfLastPopularCourse = currentPopularPage * popularCoursesPerPage;
-    const indexOfFirstPopularCourse = indexOfLastPopularCourse - popularCoursesPerPage;
-    const currentPopularCourses = popularCourses.slice(indexOfFirstPopularCourse, indexOfLastPopularCourse);
-
-    const handlePopularPageChange = (event, value) => {
-        setCurrentPopularPage(value);
-    };
-
-    // previous arrow for carousel
-    const CustomPrevArrow = (props) => {
-        const { onClick } = props;
-        return (
-            <IconButton
-                onClick={onClick}
-                sx={{
-                    position: "absolute",
-                    left: -40,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    zIndex: 1,
-                    backgroundColor: "transparent",
-                    color: "#1C1E53",
-                    "@media (max-width: 1024px)": {
-                        left: -30,
-                    },
-                    "@media (max-width: 600px)": {
-                        left: -20,
-                    },
-                }}
-            >
-                <ArrowBackIosIcon />
-            </IconButton>
-        );
-    };
-
-    // next arrow for carousel
-    const CustomNextArrow = (props) => {
-        const { onClick } = props;
-        return (
-            <IconButton
-                onClick={onClick}
-                sx={{
-                    position: "absolute",
-                    right: -30,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    zIndex: 1,
-                    backgroundColor: "transparent",
-                    color: "#1C1E53",
-                    "@media (max-width: 1024px)": {
-                        right: -20,
-                    },
-                    "@media (max-width: 600px)": {
-                        right: -10,
-                    },
-                }}
-            >
-                <ArrowForwardIosIcon />
-            </IconButton>
-        );
-    };
-
-    // carousel settings
-    const carouselSettings = {
-        dots: false,
-        infinite: true,
-        speed: 500,
-        slidesToShow: 4,
-        slidesToScroll: 1,
-        prevArrow: <CustomPrevArrow />,
-        nextArrow: <CustomNextArrow />,
-        responsive: [
-            {
-                breakpoint: 1024,
-                settings: {
-                    slidesToShow: 3,
-                    slidesToScroll: 1,
-                },
-            },
-            {
-                breakpoint: 600,
-                settings: {
-                    slidesToShow: 2,
-                    slidesToScroll: 1,
-                },
-            },
-            {
-                breakpoint: 480,
-                settings: {
-                    slidesToShow: 1,
-                    slidesToScroll: 1,
-                },
-            },
-        ],
-    };
-
-    // category handling
-    const uniqueCategories = Array.from(new Set(courses.flatMap((course) => course.category)));
-
-    const handleCategoryClick = (category) => {
-        const filtered = courses.filter((course) => course.category.includes(category));
-        setCategoryCourses(filtered);
-        setSelectedCategory(category);
-        setOpenCategoryModal(true);
-    };
-
-    // favorite handling
-    const toggleFavorite = async (courseId, courseTitle) => {
-        if (!userId) {
-            console.error("User is not logged in.");
-            return;
-        }
-
-        if (favorites[courseId]) {
-            setCourseToRemoveFromFavorites({ courseId, courseTitle });
-            setOpenFavoriteDialog(true);
-        } else {
+    const loadJoinedCourses = async (userId) => {
+        try {
             const userRef = doc(db, "users", userId);
-            await updateDoc(userRef, {
-                favoriteCourses: arrayUnion(courseId)
-            });
-            setFavorites((prevFavorites) => ({
-                ...prevFavorites,
-                [courseId]: true,
-            }));
-            setSnackbarMessage(snackbarT.Snackbar_Added_to_Fav);
-            setOpenSnackbar(true);
+            const userDoc = await getDoc(userRef);
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                const joinedCoursesMap = {};
+                if (userData.joinedCourses) {
+                    userData.joinedCourses.forEach((courseId) => {
+                        joinedCoursesMap[courseId] = true;
+                    });
+                }
+                setJoinedCourses(joinedCoursesMap);
+            }
+        } catch (error) {
+            console.error("Error loading joined courses:", error);
         }
     };
 
-    const handleRemoveFromFavorites = async () => {
-        if (courseToRemoveFromFavorites) {
-            const { courseId } = courseToRemoveFromFavorites;
-            const userRef = doc(db, "users", userId);
-            await updateDoc(userRef, {
-                favoriteCourses: arrayRemove(courseId)
-            });
-            setFavorites((prevFavorites) => {
-                const updatedFavorites = { ...prevFavorites };
-                delete updatedFavorites[courseId];
-                return updatedFavorites;
-            });
-            setSnackbarMessage(snackbarT.Snackbar_Remove_From_Fav);
-            setOpenSnackbar(true);
-        }
-        setOpenFavoriteDialog(false);
-    };
-
-    // handle toggle join
     const handleJoinClick = async (courseId, courseTitle) => {
         if (!userId) {
-            console.error("User is not logged in.");
+            // إذا لم يكن المستخدم مسجل الدخول، يتم إعادة توجيهه إلى صفحة المصادقة
+            navigate("/auth"); // إعادة التوجيه إلى صفحة المصادقة
             return;
         }
 
@@ -271,9 +156,148 @@ function Home() {
         setOpenJoinDialog(false);
     };
 
+    const popularCourses = courses.filter((course) => course.isPopular);
+    const indexOfLastPopularCourse = currentPopularPage * popularCoursesPerPage;
+    const indexOfFirstPopularCourse = indexOfLastPopularCourse - popularCoursesPerPage;
+    const currentPopularCourses = popularCourses.slice(indexOfFirstPopularCourse, indexOfLastPopularCourse);
+
+    const handlePopularPageChange = (event, value) => {
+        setCurrentPopularPage(value);
+    };
+
+    const CustomPrevArrow = (props) => {
+        const { onClick } = props;
+        return (
+            <IconButton
+                onClick={onClick}
+                sx={{
+                    position: "absolute",
+                    left: -40,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    zIndex: 1,
+                    backgroundColor: "transparent",
+                    color: "#1C1E53",
+                    "@media (max-width: 1024px)": {
+                        left: -30,
+                    },
+                    "@media (max-width: 600px)": {
+                        left: -20,
+                    },
+                }}
+            >
+                <ArrowBackIosIcon />
+            </IconButton>
+        );
+    };
+
+    const CustomNextArrow = (props) => {
+        const { onClick } = props;
+        return (
+            <IconButton
+                onClick={onClick}
+                sx={{
+                    position: "absolute",
+                    right: -30,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    zIndex: 1,
+                    backgroundColor: "transparent",
+                    color: "#1C1E53",
+                    "@media (max-width: 1024px)": {
+                        right: -20,
+                    },
+                    "@media (max-width: 600px)": {
+                        right: -10,
+                    },
+                }}
+            >
+                <ArrowForwardIosIcon />
+            </IconButton>
+        );
+    };
+
+    const carouselSettings = {
+        dots: false,
+        infinite: true,
+        speed: 500,
+        slidesToShow: 4,
+        slidesToScroll: 1,
+        prevArrow: <CustomPrevArrow />,
+        nextArrow: <CustomNextArrow />,
+        responsive: [
+            {
+                breakpoint: 1024,
+                settings: {
+                    slidesToShow: 3,
+                    slidesToScroll: 1,
+                },
+            },
+            {
+                breakpoint: 600,
+                settings: {
+                    slidesToShow: 2,
+                    slidesToScroll: 1,
+                },
+            },
+            {
+                breakpoint: 480,
+                settings: {
+                    slidesToShow: 1,
+                    slidesToScroll: 1,
+                },
+            },
+        ],
+    };
+
+    const uniqueCategories = Array.from(new Set(courses.flatMap((course) => course.category)));
+
+    const handleCategoryClick = (category) => {
+        const filtered = courses.filter((course) => course.category.includes(category));
+        setCategoryCourses(filtered);
+        setSelectedCategory(category);
+        setOpenCategoryModal(true);
+    };
+
+    const toggleFavorite = async (courseId, courseTitle) => {
+        if (!userId) {
+            // إذا لم يكن المستخدم مسجل الدخول، يتم إعادة توجيهه إلى صفحة المصادقة
+            navigate("/auth"); // إعادة التوجيه إلى صفحة المصادقة
+            return;
+        }
+
+        if (favoriteCourses.includes(courseId)) {
+            setCourseToRemoveFromFavorites({ courseId, courseTitle });
+            setOpenFavoriteDialog(true);
+        } else {
+            const userRef = doc(db, "users", userId);
+            await updateDoc(userRef, {
+                favoriteCourses: arrayUnion(courseId)
+            });
+            dispatch(addFavorite(courseId));
+            setSnackbarMessage(snackbarT.Snackbar_Added_to_Fav);
+            setOpenSnackbar(true);
+            await loadFavorites(userId); // إعادة تحميل المفضلات بعد الإضافة
+        }
+    };
+
+    const handleRemoveFromFavorites = async () => {
+        if (courseToRemoveFromFavorites) {
+            const { courseId } = courseToRemoveFromFavorites;
+            const userRef = doc(db, "users", userId);
+            await updateDoc(userRef, {
+                favoriteCourses: arrayRemove(courseId)
+            });
+            dispatch(removeFavorite(courseId));
+            setSnackbarMessage(snackbarT.Snackbar_Remove_From_Fav);
+            setOpenSnackbar(true);
+            await loadFavorites(userId); // إعادة تحميل المفضلات بعد الإزالة
+        }
+        setOpenFavoriteDialog(false);
+    };
+
     return (
         <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-            
             <Banner />
             <Container sx={{ mt: 4, flex: 1 }}>
                 {loading ? (
@@ -282,7 +306,6 @@ function Home() {
                     </Box>
                 ) : (
                     <>
-                        {/* cat carousel */}
                         <Box sx={{ mb: 4, position: "relative" }}>
                             <Slider {...carouselSettings}>
                                 {uniqueCategories.map((category, index) => (
@@ -306,7 +329,6 @@ function Home() {
                             </Slider>
                         </Box>
 
-                        {/* popular courses */}
                         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, color: "#1C1E53" }}>
                             <Typography variant="h4" gutterBottom textAlign="start">
                                 {titleT.Popular_Courses_Title}
@@ -321,7 +343,7 @@ function Home() {
                             }}
                         >
                             {currentPopularCourses.map((course) => {
-                                const isFavorite = favorites[course.id] || false;
+                                const isFavorite = favoriteCourses.includes(course.id);
                                 const isJoined = joinedCourses[course.id] || false;
 
                                 return (
@@ -337,7 +359,6 @@ function Home() {
                             })}
                         </Box>
 
-                        {/* pagination */}
                         <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
                             <Pagination
                                 count={Math.ceil(popularCourses.length / 6)}
@@ -361,7 +382,6 @@ function Home() {
                 )}
             </Container>
 
-            {/* cat modal */}
             <Modal
                 open={openCategoryModal}
                 onClose={() => setOpenCategoryModal(false)}
@@ -382,7 +402,6 @@ function Home() {
                         borderRadius: 2,
                     }}
                 >
-
                     <IconButton
                         aria-label="close"
                         onClick={() => setOpenCategoryModal(false)}
@@ -409,7 +428,7 @@ function Home() {
                         }}
                     >
                         {categoryCourses.map((course) => {
-                            const isFavorite = favorites[course.id] || false;
+                            const isFavorite = favoriteCourses.includes(course.id);
                             const isJoined = joinedCourses[course.id] || false;
 
                             return (
@@ -427,7 +446,6 @@ function Home() {
                 </Box>
             </Modal>
 
-            {/* fav confirm dialog */}
             <ConfirmDialog
                 open={openFavoriteDialog}
                 onClose={() => setOpenFavoriteDialog(false)}
@@ -438,14 +456,12 @@ function Home() {
                 cancelText={t.Cancel_Text}
             />
 
-            {/* snackbar */}
             <CustomSnackbar
                 open={openSnackbar}
                 message={snackbarMessage}
                 onClose={() => setOpenSnackbar(false)}
             />
 
-            {/* toggle join confirm dialog */}
             <ConfirmDialog
                 open={openJoinDialog}
                 onClose={() => setOpenJoinDialog(false)}
@@ -454,7 +470,7 @@ function Home() {
                 message={
                     joinedCourses[courseToJoin?.courseId]
                         ? t.Unjoin_Course_Msg
-                        : t.Join_Course_Msg
+                        : t.join_Course_Msg
                 }
                 confirmText={joinedCourses[courseToJoin?.courseId] ? t.Confirm_Text_Unjoin : t.Confirm_Text_Join}
                 cancelText={t.Cancel_Text}

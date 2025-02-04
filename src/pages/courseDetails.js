@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db } from '../firebase/firebaseConfig';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {
     Container,
     Typography,
@@ -17,6 +18,8 @@ import {
 import { Star, Favorite, FavoriteBorder } from '@mui/icons-material';
 import ConfirmDialog from '../components/confirmDialog';
 import SnackbarComponent from '../components/snackbarComponent';
+import { useDispatch, useSelector } from 'react-redux';
+import { addFavorite, removeFavorite, setFavorites } from '../redux/store';
 
 function CourseDetails() {
     const { courseId } = useParams();
@@ -25,7 +28,59 @@ function CourseDetails() {
     const [isFavorite, setIsFavorite] = useState(false);
     const [isJoined, setIsJoined] = useState(false);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState("");
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+    const [confirmFavoriteDialogOpen, setConfirmFavoriteDialogOpen] = useState(false); // حالة جديدة لتتبع Confirm Dialog للمفضلة
+    const [userId, setUserId] = useState(null);
+    const dispatch = useDispatch();
+    const favoriteCourses = useSelector((state) => state.favorites.favoriteCourses);
+    const { translations, language } = useSelector((state) => state.translation);
+    const t = translations[language].confirmDialog;
+    const snackbarT = translations[language].snackbar;
+    const courseDetailsT = translations[language].courseDetails;
+
+    const loadJoinedCourses = useCallback(async (userId) => {
+        try {
+            const userRef = doc(db, "users", userId);
+            const userDoc = await getDoc(userRef);
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                if (userData.joinedCourses) {
+                    setIsJoined(userData.joinedCourses.includes(courseId));
+                }
+            }
+        } catch (error) {
+            console.error("Error loading joined courses:", error);
+        }
+    }, [courseId]);
+
+    const loadFavorites = useCallback(async (userId) => {
+        try {
+            const userRef = doc(db, "users", userId);
+            const userDoc = await getDoc(userRef);
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                dispatch(setFavorites(userData.favoriteCourses || []));
+            }
+        } catch (error) {
+            console.error("Error loading favorites:", error);
+        }
+    }, [dispatch]);
+
+    useEffect(() => {
+        const auth = getAuth();
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setUserId(user.uid);
+                loadJoinedCourses(user.uid);
+                loadFavorites(user.uid);
+            } else {
+                setUserId(null);
+            }
+        });
+
+        return () => unsubscribe();
+    }, [loadJoinedCourses, loadFavorites]);
 
     useEffect(() => {
         const fetchCourseDetails = async () => {
@@ -33,6 +88,7 @@ function CourseDetails() {
                 const courseDoc = await getDoc(doc(db, 'courses', courseId));
                 if (courseDoc.exists()) {
                     setCourse({ id: courseDoc.id, ...courseDoc.data() });
+                    setIsFavorite(favoriteCourses.includes(courseDoc.id));
                 } else {
                     console.error('Course not found');
                 }
@@ -44,29 +100,75 @@ function CourseDetails() {
         };
 
         fetchCourseDetails();
-    }, [courseId]);
+    }, [courseId, favoriteCourses]);
 
     const handleJoinClick = () => {
+        if (!userId) {
+            console.error("User is not logged in.");
+            return;
+        }
+
         if (isJoined) {
-            setConfirmDialogOpen(true); 
+            setConfirmDialogOpen(true);
         } else {
-            setIsJoined(true);
+            handleJoinConfirm();
+        }
+    };
+
+    const handleJoinConfirm = async () => {
+        if (userId) {
+            const userRef = doc(db, "users", userId);
+            if (isJoined) {
+                await updateDoc(userRef, {
+                    joinedCourses: arrayRemove(courseId)
+                });
+                setSnackbarMessage(snackbarT.Snackbar_Unjoined_Courses);
+            } else {
+                await updateDoc(userRef, {
+                    joinedCourses: arrayUnion(courseId)
+                });
+                setSnackbarMessage(snackbarT.Snackbar_Joined_Courses);
+            }
+            setIsJoined(!isJoined);
+            setSnackbarOpen(true);
+            setConfirmDialogOpen(false);
+        }
+    };
+
+    const handleFavoriteClick = async () => {
+        if (!userId) {
+            console.error("User is not logged in");
+            return;
+        }
+
+        if (isFavorite) {
+            setConfirmFavoriteDialogOpen(true);
+        } else {
+            const userRef = doc(db, "users", userId);
+            await updateDoc(userRef, {
+                favoriteCourses: arrayUnion(courseId)
+            });
+            dispatch(addFavorite(courseId));
+            setSnackbarMessage(snackbarT.Snackbar_Added_to_Fav);
+            await loadFavorites(userId);
+            setIsFavorite(true);
             setSnackbarOpen(true);
         }
     };
 
-    const handleUnjoinConfirm = () => {
-        setIsJoined(false); 
-        setConfirmDialogOpen(false);
-    };
-
-    const handleFavoriteClick = () => {
-        setIsFavorite(!isFavorite);
-        if (!isFavorite) {
-            console.log('Course added to favorites');
-        } else {
-            console.log('Course removed from favorites');
+    const handleRemoveFavoriteConfirm = async () => {
+        if (userId) {
+            const userRef = doc(db, "users", userId);
+            await updateDoc(userRef, {
+                favoriteCourses: arrayRemove(courseId)
+            });
+            dispatch(removeFavorite(courseId));
+            setSnackbarMessage(snackbarT.Snackbar_Remove_From_Fav);
+            await loadFavorites(userId);
+            setIsFavorite(false);
+            setSnackbarOpen(true);
         }
+        setConfirmFavoriteDialogOpen(false);
     };
 
     const handleSnackbarClose = () => {
@@ -75,6 +177,10 @@ function CourseDetails() {
 
     const handleConfirmDialogClose = () => {
         setConfirmDialogOpen(false);
+    };
+
+    const handleConfirmFavoriteDialogClose = () => {
+        setConfirmFavoriteDialogOpen(false);
     };
 
     if (loading) {
@@ -119,14 +225,14 @@ function CourseDetails() {
                                     {course.description}
                                 </Typography>
                                 <Typography variant="h6" sx={{ color: '#1C1E53', mb: 2 }}>
-                                    Price: ${course.price}
+                                    {courseDetailsT.Price} ${course.price}
                                 </Typography>
                                 <Typography variant="h6" sx={{ color: '#1C1E53' }}>
-                                    Created By: {course.createdBy}
+                                    {courseDetailsT.Created_By} {course.createdBy}
                                 </Typography>
                                 <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 2 }}>
                                     <Typography variant="h6" sx={{ color: '#1C1E53' }}>
-                                        Rate: {course.rating}
+                                        {courseDetailsT.Rate} {course.rating}
                                     </Typography>
                                     <Star sx={{ color: 'gold' }} />
                                 </Stack>
@@ -144,7 +250,7 @@ function CourseDetails() {
                                         }}
                                         onClick={handleJoinClick}
                                     >
-                                        {isJoined ? 'Joined' : 'Join'}
+                                        {isJoined ? courseDetailsT.Unjoin : courseDetailsT.Join}
                                     </Button>
                                     <IconButton
                                         color={isFavorite ? 'error' : 'default'}
@@ -159,10 +265,10 @@ function CourseDetails() {
                 </Stack>
             </Container>
 
-            {/* snackbar for join */}
+            {/* snackbar */}
             <SnackbarComponent
                 open={snackbarOpen}
-                message="You have joined this course!"
+                message={snackbarMessage}
                 onClose={handleSnackbarClose}
             />
 
@@ -170,11 +276,22 @@ function CourseDetails() {
             <ConfirmDialog
                 open={confirmDialogOpen}
                 onClose={handleConfirmDialogClose}
-                onConfirm={handleUnjoinConfirm}
-                title="Unjoin Course"
-                message="Are you sure you want to unjoin this course?"
-                confirmText="Unjoin"
-                cancelText="Cancel"
+                onConfirm={handleJoinConfirm}
+                title={t.Unjoin_Course_Title}
+                message={t.Unjoin_Course_Msg}
+                confirmText={t.Confirm_Text_Unjoin}
+                cancelText={t.Cancel_Text}
+            />
+
+            {/* confirm dialog for removing from fav */}
+            <ConfirmDialog
+                open={confirmFavoriteDialogOpen}
+                onClose={handleConfirmFavoriteDialogClose}
+                onConfirm={handleRemoveFavoriteConfirm}
+                title={t.RemoveFavTitle}
+                message={t.RemoveFavMsg}
+                confirmText={t.Confirm_Text_Fav}
+                cancelText={t.Cancel_Text}
             />
         </Box>
     );

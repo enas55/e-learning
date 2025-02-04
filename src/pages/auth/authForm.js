@@ -300,13 +300,13 @@ function AuthForm() {
                     <Fade in={!!alertMessage}>
                         <Alert
                             severity={alertSeverity}
-                            sx={{ 
-                                width: '70%', 
-                                marginBottom: 2, 
+                            sx={{
+                                width: '70%',
+                                marginBottom: 2,
                                 top: 20,
                                 direction: language === 'ar' ? 'rtl' : 'ltr',
                                 '& .MuiAlert-action': {
-                                    marginRight: language === 'ar' ? 'auto' : '8px', 
+                                    marginRight: language === 'ar' ? 'auto' : '8px',
                                     marginLeft: language === 'ar' ? '8px' : 'auto',
                                 },
                             }}
@@ -317,7 +317,7 @@ function AuthForm() {
                     </Fade>
                 )}
 
-                <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: '400px'}}>
+                <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: '400px' }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                         {!isLogin && (
                             <TextField
@@ -331,21 +331,21 @@ function AuthForm() {
                                 sx={{
                                     backgroundColor: 'transparent',
                                     borderRadius: '5px',
-                                    '& label': { 
+                                    '& label': {
                                         color: '#A0A0A0',
                                         textAlign: language === 'ar' ? 'right' : 'left',
                                     },
                                     '& label.Mui-focused': { color: '#A0A0A0' },
                                     '& label.Mui-error': { color: '#A0A0A0' },
                                     '& .MuiOutlinedInput-root': {
-                                        '& fieldset': { 
+                                        '& fieldset': {
                                             borderColor: '#A0A0A0',
                                         },
                                         '&:hover fieldset': { borderColor: '#A0A0A0' },
                                         '&.Mui-focused fieldset': { borderColor: '#A0A0A0' },
                                         '&.Mui-error fieldset': { borderColor: '#A0A0A0' },
                                     },
-                                    '& input': { 
+                                    '& input': {
                                         color: '#A0A0A0',
                                         textAlign: language === 'ar' ? 'right' : 'left',
                                     },
@@ -365,28 +365,28 @@ function AuthForm() {
                             sx={{
                                 backgroundColor: 'transparent',
                                 borderRadius: '5px',
-                                '& label': { 
+                                '& label': {
                                     color: '#A0A0A0',
                                     textAlign: language === 'ar' ? 'right' : 'left',
                                 },
                                 '& label.Mui-focused': { color: '#A0A0A0' },
                                 '& label.Mui-error': { color: '#A0A0A0' },
                                 '& .MuiOutlinedInput-root': {
-                                    '& fieldset': { 
+                                    '& fieldset': {
                                         borderColor: '#A0A0A0',
                                     },
                                     '&:hover fieldset': { borderColor: '#A0A0A0' },
                                     '&.Mui-focused fieldset': { borderColor: '#A0A0A0' },
                                     '&.Mui-error fieldset': { borderColor: '#A0A0A0' },
                                 },
-                                '& input': { 
+                                '& input': {
                                     color: '#A0A0A0',
                                     textAlign: language === 'ar' ? 'right' : 'left',
                                 },
                             }}
                         />
 
-                        <Box sx={{ display: 'flex', alignItems: 'center'}}>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
                             <TextField
                                 fullWidth
                                 label={t.password}
@@ -399,21 +399,21 @@ function AuthForm() {
                                 sx={{
                                     backgroundColor: 'transparent',
                                     borderRadius: '5px',
-                                    '& label': { 
+                                    '& label': {
                                         color: '#A0A0A0',
                                         textAlign: language === 'ar' ? 'right' : 'left',
                                     },
                                     '& label.Mui-focused': { color: '#A0A0A0' },
                                     '& label.Mui-error': { color: '#A0A0A0' },
                                     '& .MuiOutlinedInput-root': {
-                                        '& fieldset': { 
+                                        '& fieldset': {
                                             borderColor: '#A0A0A0',
                                         },
                                         '&:hover fieldset': { borderColor: '#A0A0A0' },
                                         '&.Mui-focused fieldset': { borderColor: '#A0A0A0' },
                                         '&.Mui-error fieldset': { borderColor: '#A0A0A0' },
                                     },
-                                    '& input': { 
+                                    '& input': {
                                         color: '#A0A0A0',
                                         textAlign: language === 'ar' ? 'right' : 'left',
                                     },
