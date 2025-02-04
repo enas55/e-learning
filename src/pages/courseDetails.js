@@ -48,24 +48,24 @@ function CourseDetails() {
 
     const handleJoinClick = () => {
         if (isJoined) {
-            setConfirmDialogOpen(true); // Open confirm dialog if already joined
+            setConfirmDialogOpen(true); 
         } else {
-            setIsJoined(true); // Join the course
-            setSnackbarOpen(true); // Show snackbar
+            setIsJoined(true);
+            setSnackbarOpen(true);
         }
     };
 
     const handleUnjoinConfirm = () => {
-        setIsJoined(false); // Unjoin the course
-        setConfirmDialogOpen(false); // Close confirm dialog
+        setIsJoined(false); 
+        setConfirmDialogOpen(false);
     };
 
     const handleFavoriteClick = () => {
         setIsFavorite(!isFavorite);
         if (!isFavorite) {
-            alert('Course added to favorites!');
+            console.log('Course added to favorites');
         } else {
-            alert('Course removed from favorites!');
+            console.log('Course removed from favorites');
         }
     };
 
@@ -159,14 +159,14 @@ function CourseDetails() {
                 </Stack>
             </Container>
 
-            {/* Snackbar for join confirmation */}
+            {/* snackbar for join */}
             <SnackbarComponent
                 open={snackbarOpen}
                 message="You have joined this course!"
                 onClose={handleSnackbarClose}
             />
 
-            {/* Confirm Dialog for unjoin confirmation */}
+            {/* confirm dialog for unjoin */}
             <ConfirmDialog
                 open={confirmDialogOpen}
                 onClose={handleConfirmDialogClose}

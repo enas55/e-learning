@@ -48,7 +48,7 @@ function Favorite() {
                 favoriteCourses: arrayRemove(courseId)
             });
 
-            // تحديث القائمة المحلية
+
             setFavoriteCourses(prevCourses => prevCourses.filter(course => course.id !== courseId));
         } catch (error) {
             console.error("Error removing course from favorites: ", error);
