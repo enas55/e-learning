@@ -18,10 +18,9 @@ import {
     CircularProgress,
 } from "@mui/material";
 import CourseCard from "../components/courseCard";
-import ResponsiveAppBar from "../components/navbar";
 import CustomSnackbar from "../components/snackbarComponent";
 import ConfirmDialog from "../components/confirmDialog";
-import Footer from "../components/footer"
+
 
 function AllCourses() {
     const [courses, setCourses] = useState([]);
@@ -183,7 +182,7 @@ function AllCourses() {
 
     return (
         <div>
-            <ResponsiveAppBar />
+            
             <Container sx={{ mt: 4, mb: 4 }}>
                 {loading ? (
                     <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "50vh" }}>
@@ -369,7 +368,7 @@ function AllCourses() {
                 )}
             </Container>
 
-            <Footer />
+            
 
             {/* fav confirm dialog */}
             <ConfirmDialog
