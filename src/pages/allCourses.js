@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { setLanguage } from '../redux/store';
-import { useLocation } from "react-router-dom";
-import { collection, getDocs } from "firebase/firestore";
+import { setLanguage, setFavorites, addFavorite, removeFavorite } from '../redux/store';
+import { useLocation, useNavigate } from "react-router-dom";
+import { collection, getDocs, doc, updateDoc, arrayUnion, arrayRemove, getDoc } from "firebase/firestore";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { db } from "../firebase/firebaseConfig";
 import {
     Container,
@@ -21,7 +22,6 @@ import CourseCard from "../components/courseCard";
 import CustomSnackbar from "../components/snackbarComponent";
 import ConfirmDialog from "../components/confirmDialog";
 
-
 function AllCourses() {
     const [courses, setCourses] = useState([]);
     const [filteredCourses, setFilteredCourses] = useState([]);
@@ -30,7 +30,6 @@ function AllCourses() {
     const [anchorEl, setAnchorEl] = useState(null);
     const [priceFilter, setPriceFilter] = useState("");
     const [categoryFilter, setCategoryFilter] = useState("");
-    const [favorites, setFavorites] = useState({});
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
     const [openFavoriteDialog, setOpenFavoriteDialog] = useState(false);
@@ -44,6 +43,38 @@ function AllCourses() {
     const { language, translations } = useSelector((state) => state.translation);
     const t = translations[language].confirmDialog;
     const filterAndTitleT = translations[language].filterAndMainTiltles;
+    const snackbarT = translations[language].snackbar;
+    const [userId, setUserId] = useState(null);
+    const favoriteCourses = useSelector((state) => state.favorites.favoriteCourses);
+    const navigate = useNavigate();
+
+    const loadFavorites = useCallback(async (userId) => {
+        try {
+            const userRef = doc(db, "users", userId);
+            const userDoc = await getDoc(userRef);
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                dispatch(setFavorites(userData.favoriteCourses || []));
+            }
+        } catch (error) {
+            console.error("Error loading favorites:", error);
+        }
+    }, [dispatch]);
+
+    useEffect(() => {
+        const auth = getAuth();
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setUserId(user.uid);
+                loadFavorites(user.uid);
+                loadJoinedCourses(user.uid);
+            } else {
+                setUserId(null);
+            }
+        });
+
+        return () => unsubscribe();
+    }, [loadFavorites]);
 
     useEffect(() => {
         const savedLanguage = localStorage.getItem('appLanguage') || 'en';
@@ -74,37 +105,98 @@ function AllCourses() {
         fetchCourses();
     }, []);
 
-    // toggle fav
-    const toggleFavorite = (courseId, courseTitle) => {
-        if (favorites[courseId]) {
-            setCourseToRemoveFromFavorites({ courseId, courseTitle });
-            setOpenFavoriteDialog(true);
-        } else {
-            setFavorites((prevFavorites) => ({
-                ...prevFavorites,
-                [courseId]: true,
-            }));
-            setSnackbarMessage(`${courseTitle} has been added to your favorites`);
-            setOpenSnackbar(true);
+    const loadJoinedCourses = async (userId) => {
+        try {
+            const userRef = doc(db, "users", userId);
+            const userDoc = await getDoc(userRef);
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                const joinedCoursesMap = {};
+                if (userData.joinedCourses) {
+                    userData.joinedCourses.forEach((courseId) => {
+                        joinedCoursesMap[courseId] = true;
+                    });
+                }
+                setJoinedCourses(joinedCoursesMap);
+            }
+        } catch (error) {
+            console.error("Error loading joined courses:", error);
         }
     };
 
-    const handleRemoveFromFavorites = () => {
-        if (courseToRemoveFromFavorites) {
-            const { courseId, courseTitle } = courseToRemoveFromFavorites;
-            setFavorites((prevFavorites) => {
-                const updatedFavorites = { ...prevFavorites };
-                delete updatedFavorites[courseId];
-                return updatedFavorites;
-            });
-            setSnackbarMessage(`${courseTitle} has been removed from your favorites`);
+    const handleJoinClick = async (courseId, courseTitle) => {
+        if (!userId) {
+            navigate("/auth");
+            return;
+        }
+
+        setCourseToJoin({ courseId, courseTitle });
+        setOpenJoinDialog(true);
+    };
+
+    const handleJoinConfirm = async () => {
+        if (courseToJoin) {
+            const { courseId } = courseToJoin;
+            const userRef = doc(db, "users", userId);
+            if (joinedCourses[courseId]) {
+                await updateDoc(userRef, {
+                    joinedCourses: arrayRemove(courseId)
+                });
+            } else {
+                await updateDoc(userRef, {
+                    joinedCourses: arrayUnion(courseId)
+                });
+            }
+            setJoinedCourses((prevJoined) => ({
+                ...prevJoined,
+                [courseId]: !prevJoined[courseId],
+            }));
+            setSnackbarMessage(
+                joinedCourses[courseId]
+                    ? snackbarT.Snackbar_Unjoined_Courses
+                    : snackbarT.Snackbar_Joined_Courses
+            );
             setOpenSnackbar(true);
+        }
+        setOpenJoinDialog(false);
+    };
+
+    const toggleFavorite = async (courseId, courseTitle) => {
+        if (!userId) {
+            navigate("/auth");
+            return;
+        }
+
+        if (favoriteCourses.includes(courseId)) {
+            setCourseToRemoveFromFavorites({ courseId, courseTitle });
+            setOpenFavoriteDialog(true);
+        } else {
+            const userRef = doc(db, "users", userId);
+            await updateDoc(userRef, {
+                favoriteCourses: arrayUnion(courseId)
+            });
+            dispatch(addFavorite(courseId));
+            setSnackbarMessage(snackbarT.Snackbar_Added_to_Fav);
+            setOpenSnackbar(true);
+            await loadFavorites(userId);
+        }
+    };
+
+    const handleRemoveFromFavorites = async () => {
+        if (courseToRemoveFromFavorites) {
+            const { courseId } = courseToRemoveFromFavorites;
+            const userRef = doc(db, "users", userId);
+            await updateDoc(userRef, {
+                favoriteCourses: arrayRemove(courseId)
+            });
+            dispatch(removeFavorite(courseId));
+            setSnackbarMessage(snackbarT.Snackbar_Remove_From_Fav);
+            setOpenSnackbar(true);
+            await loadFavorites(userId);
         }
         setOpenFavoriteDialog(false);
     };
 
-
-    // filter part
     const handleFilterClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
@@ -141,7 +233,6 @@ function AllCourses() {
         handleFilterClose();
     };
 
-    // pagination 
     const indexOfLastCourse = currentPage * coursesPerPage;
     const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
     const currentCourses = filteredCourses.slice(
@@ -157,32 +248,8 @@ function AllCourses() {
         new Set(courses.flatMap((course) => course.category))
     );
 
-    // handle toggle join
-    const handleJoinClick = (courseId, courseTitle) => {
-        setCourseToJoin({ courseId, courseTitle });
-        setOpenJoinDialog(true);
-    };
-
-    const handleJoinConfirm = () => {
-        if (courseToJoin) {
-            const { courseId, courseTitle } = courseToJoin;
-            setJoinedCourses((prevJoined) => ({
-                ...prevJoined,
-                [courseId]: !prevJoined[courseId],
-            }));
-            setSnackbarMessage(
-                joinedCourses[courseId]
-                    ? `You have unjoined ${courseTitle}`
-                    : `You have joined ${courseTitle}`
-            );
-            setOpenSnackbar(true);
-        }
-        setOpenJoinDialog(false);
-    };
-
     return (
         <div>
-            
             <Container sx={{ mt: 4, mb: 4 }}>
                 {loading ? (
                     <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "50vh" }}>
@@ -217,7 +284,6 @@ function AllCourses() {
                             </Button>
                         </Box>
 
-                        {/* filter menu */}
                         <Menu
                             anchorEl={anchorEl}
                             open={Boolean(anchorEl)}
@@ -319,7 +385,6 @@ function AllCourses() {
                             </Box>
                         </Menu>
 
-                        {/* display filtered courses */}
                         <Box
                             sx={{
                                 display: "grid",
@@ -328,7 +393,7 @@ function AllCourses() {
                             }}
                         >
                             {currentCourses.map((course) => {
-                                const isFavorite = favorites[course.id] || false;
+                                const isFavorite = favoriteCourses.includes(course.id);
                                 const isJoined = joinedCourses[course.id] || false;
 
                                 return (
@@ -344,7 +409,6 @@ function AllCourses() {
                             })}
                         </Box>
 
-                        {/* pagination */}
                         <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
                             <Pagination
                                 count={Math.ceil(filteredCourses.length / coursesPerPage)}
@@ -368,30 +432,27 @@ function AllCourses() {
                 )}
             </Container>
 
-            
-
-            {/* fav confirm dialog */}
             <ConfirmDialog
                 open={openFavoriteDialog}
                 onClose={() => setOpenFavoriteDialog(false)}
                 onConfirm={handleRemoveFromFavorites}
                 title={t.RemoveFavTitle}
                 message={t.RemoveFavMsg}
+                confirmText={t.Confirm_Text_Fav}
+                cancelText={t.Cancel_Text}
             />
 
-            {/* snackbar */}
             <CustomSnackbar
                 open={openSnackbar}
                 message={snackbarMessage}
                 onClose={() => setOpenSnackbar(false)}
             />
 
-            {/* toggle join confirm dialog */}
             <ConfirmDialog
                 open={openJoinDialog}
                 onClose={() => setOpenJoinDialog(false)}
                 onConfirm={handleJoinConfirm}
-                title={joinedCourses[courseToJoin?.courseId] ? t.Unjoin_Course_Title : t.oin_Course_Title}
+                title={joinedCourses[courseToJoin?.courseId] ? t.Unjoin_Course_Title : t.Join_Course_Title}
                 message={
                     joinedCourses[courseToJoin?.courseId]
                         ? t.Unjoin_Course_Msg
@@ -400,7 +461,6 @@ function AllCourses() {
                 confirmText={joinedCourses[courseToJoin?.courseId] ? t.Confirm_Text_Unjoin : t.Confirm_Text_Join}
                 cancelText={t.Cancel_Text}
             />
-
         </div>
     );
 }

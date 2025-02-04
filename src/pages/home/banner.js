@@ -6,15 +6,15 @@ import BannerImage from "../../assets/images/Illustration.png";
 import Image1 from "../../assets/images/Group 2618.png";
 import Image2 from "../../assets/images/Group 2535.png";
 
-function  Banner () {
+function Banner() {
     const dispatch = useDispatch();
     const { language, translations } = useSelector((state) => state.translation);
     const t = translations[language].banner;
 
     useEffect(() => {
-            const savedLanguage = localStorage.getItem('appLanguage') || 'en';
-            dispatch(setLanguage(savedLanguage));
-        }, [dispatch]);
+        const savedLanguage = localStorage.getItem('appLanguage') || 'en';
+        dispatch(setLanguage(savedLanguage));
+    }, [dispatch]);
 
     return (
         <Box
@@ -99,7 +99,7 @@ function  Banner () {
                         sx={{
                             position: "absolute",
                             bottom: { xs: "-20px", md: "-30px" },
-                            right: { xs: "-20px", md: "-40px" }, 
+                            right: { xs: "-20px", md: "-40px" },
                             zIndex: 1,
                         }}
                     >

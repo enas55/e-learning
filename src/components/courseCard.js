@@ -33,16 +33,16 @@ function CourseCard({ course, isFavorite, toggleFavorite, isJoined, toggleJoin, 
                 </Typography>
             </CardContent>
 
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 2 }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 2, gap: 1 }}>
                 <Button
                     variant="contained"
-                    sx={{ backgroundColor: "#1C1E53" }}
+                    sx={{ backgroundColor: "#1C1E53", flex: 1 }}
                     onClick={handleViewCourse}
                 >
                     {t.View_Course}
                 </Button>
 
-                <Box>
+                <Box sx={{ display: "flex", gap: 1 }}>
                     <Button
                         variant={isJoined ? "outlined" : "contained"}
                         onClick={() => toggleJoin(course.id)}
@@ -50,7 +50,6 @@ function CourseCard({ course, isFavorite, toggleFavorite, isJoined, toggleJoin, 
                             backgroundColor: isJoined ? "transparent" : "#1C1E53",
                             color: isJoined ? "#4CAF50" : "white",
                             borderColor: isJoined ? "#4CAF50" : "transparent",
-                            mr: 1,
                             '&:hover': {
                                 backgroundColor: isJoined ? "transparent" : "#1C1E53",
                                 borderColor: isJoined ? "#4CAF50" : "transparent",
@@ -65,8 +64,9 @@ function CourseCard({ course, isFavorite, toggleFavorite, isJoined, toggleJoin, 
                             variant="contained"
                             color="error"
                             onClick={() => toggleFavorite(course.id)}
+                            sx={{ flex: 1 }}
                         >
-                            Remove from Favorites
+                            {t.Remove}
                         </Button>
                     ) : (
                         <IconButton

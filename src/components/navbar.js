@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setLanguage } from '../redux/store';
 import { Link, useLocation } from 'react-router-dom';
-import { AppBar, Box, Toolbar, IconButton, Typography, Menu, MenuItem, TextField, Avatar, Tooltip, Container } from '@mui/material';
+import { AppBar, Box, Toolbar, IconButton, Typography, Menu, MenuItem, TextField, Avatar, Tooltip, Container, Badge } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import LanguageIcon from '@mui/icons-material/Language';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
@@ -13,6 +13,7 @@ import ConfirmDialog from './confirmDialog';
 function ResponsiveAppBar() {
     const dispatch = useDispatch();
     const { language, translations } = useSelector((state) => state.translation);
+    const { favoriteCourses } = useSelector((state) => state.favorites);
     const t = translations[language].navbar;
     const confirmDialogT = translations[language].confirmDialog;
     const location = useLocation();
@@ -49,12 +50,10 @@ function ResponsiveAppBar() {
         setAnchorElUser(null);
     };
 
-    // 👇 فتح المودال عند الضغط على "Logout"
     const handleLogoutClick = () => {
         setOpenLogoutConfirm(true);
     };
 
-    // 👇 تنفيذ تسجيل الخروج عند التأكيد
     const handleConfirmLogout = async () => {
         setOpenLogoutConfirm(false);
         await signOut(auth);
@@ -66,15 +65,20 @@ function ResponsiveAppBar() {
         dispatch(setLanguage(newLanguage));
     };
 
-    // 👇 القائمة الأساسية
     let pages = [
         { label: t.Home, path: '/' },
         { label: t.All_courses, path: '/all-courses' }
     ];
 
-    // 👇 إضافة Favorite فقط إذا كان المستخدم مسجلاً الدخول
     if (user) {
-        pages.push({ label: t.Favorite, path: '/favorite' });
+        pages.push({ 
+            label: (
+                <Badge badgeContent={favoriteCourses.length} color="warning">
+                    {t.Favorite}
+                </Badge>
+            ), 
+            path: '/favorite' 
+        });
     }
 
     const isActive = (path) => location.pathname === path;
@@ -124,7 +128,7 @@ function ResponsiveAppBar() {
                             sx={{ display: { xs: 'block', md: 'none' } }}
                         >
                             {pages.map(({ label, path }) => (
-                                <MenuItem key={label} onClick={handleCloseNavMenu}>
+                                <MenuItem key={path} onClick={handleCloseNavMenu}>
                                     <Typography sx={{ textAlign: 'center' }}>
                                         <Link to={path} style={{ textDecoration: 'none', color: 'inherit' }}>
                                             {label}
@@ -151,7 +155,7 @@ function ResponsiveAppBar() {
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                         {pages.map(({ label, path }) => (
                             <Typography
-                                key={label}
+                                key={path}
                                 component={Link}
                                 to={path}
                                 sx={{
@@ -228,9 +232,9 @@ function ResponsiveAppBar() {
                 onClose={() => setOpenLogoutConfirm(false)}
                 onConfirm={handleConfirmLogout}
                 title={confirmDialogT.Logout_Title}
-                message= {confirmDialogT.Logout_Msg}
-                confirmText= {confirmDialogT.Logout_Text}
-                cancelText= {confirmDialogT.Logout_cancel}
+                message={confirmDialogT.Logout_Msg}
+                confirmText={confirmDialogT.Logout_Text}
+                cancelText={confirmDialogT.Logout_cancel}
             />
         </AppBar>
     );
