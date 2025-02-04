@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { setLanguage } from '../../redux/store';
 import { useLocation } from "react-router-dom";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { db } from "../../firebase/firebaseConfig";
-import ResponsiveAppBar from "../../components/navbar";
 import { Container, Box, Typography, Pagination, IconButton, Chip, Modal, CircularProgress } from "@mui/material";
 import CourseCard from "../../components/courseCard";
 import CustomSnackbar from "../../components/snackbarComponent";
@@ -15,7 +15,6 @@ import "slick-carousel/slick/slick-theme.css";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import Banner from "./banner";
-import Footer from "../../components/footer";
 import CloseIcon from "@mui/icons-material/Close";
 
 function Home() {
@@ -40,11 +39,25 @@ function Home() {
     const t = translations[language].confirmDialog;
     const titleT = translations[language].filterAndMainTiltles;
     const snackbarT = translations[language].snackbar;
-    
-        useEffect(() => {
-                const savedLanguage = localStorage.getItem('appLanguage') || 'en';
-                dispatch(setLanguage(savedLanguage));
-            }, [dispatch]);
+
+    const [userId, setUserId] = useState(null);
+    useEffect(() => {
+        const auth = getAuth();
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setUserId(user.uid);
+            } else {
+                setUserId(null);
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    useEffect(() => {
+        const savedLanguage = localStorage.getItem('appLanguage') || 'en';
+        dispatch(setLanguage(savedLanguage));
+    }, [dispatch]);
 
     useEffect(() => {
         document.title = "Home";
@@ -179,11 +192,20 @@ function Home() {
     };
 
     // favorite handling
-    const toggleFavorite = (courseId, courseTitle) => {
+    const toggleFavorite = async (courseId, courseTitle) => {
+        if (!userId) {
+            console.error("User is not logged in.");
+            return;
+        }
+
         if (favorites[courseId]) {
             setCourseToRemoveFromFavorites({ courseId, courseTitle });
             setOpenFavoriteDialog(true);
         } else {
+            const userRef = doc(db, "users", userId);
+            await updateDoc(userRef, {
+                favoriteCourses: arrayUnion(courseId)
+            });
             setFavorites((prevFavorites) => ({
                 ...prevFavorites,
                 [courseId]: true,
@@ -193,9 +215,13 @@ function Home() {
         }
     };
 
-    const handleRemoveFromFavorites = () => {
+    const handleRemoveFromFavorites = async () => {
         if (courseToRemoveFromFavorites) {
-            const { courseId} = courseToRemoveFromFavorites;
+            const { courseId } = courseToRemoveFromFavorites;
+            const userRef = doc(db, "users", userId);
+            await updateDoc(userRef, {
+                favoriteCourses: arrayRemove(courseId)
+            });
             setFavorites((prevFavorites) => {
                 const updatedFavorites = { ...prevFavorites };
                 delete updatedFavorites[courseId];
@@ -208,14 +234,29 @@ function Home() {
     };
 
     // handle toggle join
-    const handleJoinClick = (courseId, courseTitle) => {
+    const handleJoinClick = async (courseId, courseTitle) => {
+        if (!userId) {
+            console.error("User is not logged in.");
+            return;
+        }
+
         setCourseToJoin({ courseId, courseTitle });
         setOpenJoinDialog(true);
     };
 
-    const handleJoinConfirm = () => {
+    const handleJoinConfirm = async () => {
         if (courseToJoin) {
-            const { courseId} = courseToJoin;
+            const { courseId } = courseToJoin;
+            const userRef = doc(db, "users", userId);
+            if (joinedCourses[courseId]) {
+                await updateDoc(userRef, {
+                    joinedCourses: arrayRemove(courseId)
+                });
+            } else {
+                await updateDoc(userRef, {
+                    joinedCourses: arrayUnion(courseId)
+                });
+            }
             setJoinedCourses((prevJoined) => ({
                 ...prevJoined,
                 [courseId]: !prevJoined[courseId],
@@ -232,7 +273,7 @@ function Home() {
 
     return (
         <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-            <ResponsiveAppBar />
+            
             <Banner />
             <Container sx={{ mt: 4, flex: 1 }}>
                 {loading ? (
@@ -320,81 +361,78 @@ function Home() {
                 )}
             </Container>
 
-            {/* footer */}
-            <Footer />
-
             {/* cat modal */}
             <Modal
-    open={openCategoryModal}
-    onClose={() => setOpenCategoryModal(false)}
-    aria-labelledby="category-modal-title"
-    aria-describedby="category-modal-description"
->
-    <Box
-        sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "80%",
-            maxWidth: 800,
-            bgcolor: "background.paper",
-            boxShadow: 24,
-            p: 4,
-            borderRadius: 2,
-        }}
-    >
-        {/* إضافة أيقونة الإغلاق في الزاوية اليمنى العليا */}
-        <IconButton
-            aria-label="close"
-            onClick={() => setOpenCategoryModal(false)}
-            sx={{
-                position: "absolute",
-                right: 8,
-                top: 8,
-                color: "#1C1E53",
-            }}
-        >
-            <CloseIcon />
-        </IconButton>
+                open={openCategoryModal}
+                onClose={() => setOpenCategoryModal(false)}
+                aria-labelledby="category-modal-title"
+                aria-describedby="category-modal-description"
+            >
+                <Box
+                    sx={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: "80%",
+                        maxWidth: 800,
+                        bgcolor: "background.paper",
+                        boxShadow: 24,
+                        p: 4,
+                        borderRadius: 2,
+                    }}
+                >
 
-        <Typography id="category-modal-title" variant="h6" component="h2" sx={{ mb: 2 }}>
-            Courses in {selectedCategory}
-        </Typography>
-        <Box
-            sx={{
-                display: "grid",
-                gridTemplateColumns: "repeat(2, 1fr)",
-                gap: 4,
-                maxHeight: "60vh",
-                overflowY: "auto",
-            }}
-        >
-            {categoryCourses.map((course) => {
-                const isFavorite = favorites[course.id] || false;
-                const isJoined = joinedCourses[course.id] || false;
+                    <IconButton
+                        aria-label="close"
+                        onClick={() => setOpenCategoryModal(false)}
+                        sx={{
+                            position: "absolute",
+                            right: 8,
+                            top: 8,
+                            color: "#1C1E53",
+                        }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
 
-                return (
-                    <CourseCard
-                        key={course.id}
-                        course={course}
-                        isFavorite={isFavorite}
-                        toggleFavorite={toggleFavorite}
-                        isJoined={isJoined}
-                        toggleJoin={handleJoinClick}
-                    />
-                );
-            })}
-        </Box>
-    </Box>
-</Modal>
+                    <Typography id="category-modal-title" variant="h6" component="h2" sx={{ mb: 2 }}>
+                        Courses in {selectedCategory}
+                    </Typography>
+                    <Box
+                        sx={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(2, 1fr)",
+                            gap: 4,
+                            maxHeight: "60vh",
+                            overflowY: "auto",
+                        }}
+                    >
+                        {categoryCourses.map((course) => {
+                            const isFavorite = favorites[course.id] || false;
+                            const isJoined = joinedCourses[course.id] || false;
+
+                            return (
+                                <CourseCard
+                                    key={course.id}
+                                    course={course}
+                                    isFavorite={isFavorite}
+                                    toggleFavorite={toggleFavorite}
+                                    isJoined={isJoined}
+                                    toggleJoin={handleJoinClick}
+                                />
+                            );
+                        })}
+                    </Box>
+                </Box>
+            </Modal>
 
             {/* fav confirm dialog */}
             <ConfirmDialog
                 open={openFavoriteDialog}
                 onClose={() => setOpenFavoriteDialog(false)}
                 onConfirm={handleRemoveFromFavorites}
-                title= {t.RemoveFavTitle}
+                title={t.RemoveFavTitle}
                 message={t.RemoveFavMsg}
                 confirmText={t.Confirm_Text_Fav}
                 cancelText={t.Cancel_Text}
@@ -412,14 +450,14 @@ function Home() {
                 open={openJoinDialog}
                 onClose={() => setOpenJoinDialog(false)}
                 onConfirm={handleJoinConfirm}
-                title={joinedCourses[courseToJoin?.courseId] ? t.Unjoin_Course_Title : t.oin_Course_Title}
+                title={joinedCourses[courseToJoin?.courseId] ? t.Unjoin_Course_Title : t.Join_Course_Title}
                 message={
                     joinedCourses[courseToJoin?.courseId]
                         ? t.Unjoin_Course_Msg
-                        : t.join_Course_Msg
+                        : t.Join_Course_Msg
                 }
                 confirmText={joinedCourses[courseToJoin?.courseId] ? t.Confirm_Text_Unjoin : t.Confirm_Text_Join}
-                cancelText= {t.Cancel_Text}
+                cancelText={t.Cancel_Text}
             />
         </Box>
     );

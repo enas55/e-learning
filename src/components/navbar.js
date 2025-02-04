@@ -1,35 +1,36 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setLanguage } from '../redux/store';
 import { Link, useLocation } from 'react-router-dom';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Menu from '@mui/material/Menu';
+import { AppBar, Box, Toolbar, IconButton, Typography, Menu, MenuItem, TextField, Avatar, Tooltip, Container } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import Container from '@mui/material/Container';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
-import TextField from '@mui/material/TextField';
 import LanguageIcon from '@mui/icons-material/Language';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import { auth } from '../firebase/firebaseConfig';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import ConfirmDialog from './confirmDialog';
 
 function ResponsiveAppBar() {
     const dispatch = useDispatch();
     const { language, translations } = useSelector((state) => state.translation);
     const t = translations[language].navbar;
-
-    const [anchorElNav, setAnchorElNav] = React.useState(null);
-    const [anchorElUser, setAnchorElUser] = React.useState(null);
+    const confirmDialogT = translations[language].confirmDialog;
     const location = useLocation();
+
+    const [anchorElNav, setAnchorElNav] = useState(null);
+    const [anchorElUser, setAnchorElUser] = useState(null);
+    const [user, setUser] = useState(null);
+    const [openLogoutConfirm, setOpenLogoutConfirm] = useState(false);
 
     useEffect(() => {
         const savedLanguage = localStorage.getItem('appLanguage') || 'en';
         dispatch(setLanguage(savedLanguage));
+
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser);
+        });
+
+        return () => unsubscribe();
     }, [dispatch]);
 
     const handleOpenNavMenu = (event) => {
@@ -48,16 +49,33 @@ function ResponsiveAppBar() {
         setAnchorElUser(null);
     };
 
+    // 👇 فتح المودال عند الضغط على "Logout"
+    const handleLogoutClick = () => {
+        setOpenLogoutConfirm(true);
+    };
+
+    // 👇 تنفيذ تسجيل الخروج عند التأكيد
+    const handleConfirmLogout = async () => {
+        setOpenLogoutConfirm(false);
+        await signOut(auth);
+        setUser(null);
+    };
+
     const toggleLanguage = () => {
         const newLanguage = language === 'en' ? 'ar' : 'en';
         dispatch(setLanguage(newLanguage));
     };
 
-    const pages = [
+    // 👇 القائمة الأساسية
+    let pages = [
         { label: t.Home, path: '/' },
-        { label: t.All_courses, path: '/all-courses' },
-        { label: t.Favorite, path: '/favorite' },
+        { label: t.All_courses, path: '/all-courses' }
     ];
+
+    // 👇 إضافة Favorite فقط إذا كان المستخدم مسجلاً الدخول
+    if (user) {
+        pages.push({ label: t.Favorite, path: '/favorite' });
+    }
 
     const isActive = (path) => location.pathname === path;
 
@@ -132,45 +150,68 @@ function ResponsiveAppBar() {
 
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                         {pages.map(({ label, path }) => (
-                            <Button
+                            <Typography
                                 key={label}
                                 component={Link}
                                 to={path}
                                 sx={{
                                     my: 2,
+                                    mx: 2,
                                     color: isActive(path) ? '#FCD980' : 'white',
-                                    display: 'block',
                                     textDecoration: isActive(path) ? 'underline' : 'none',
+                                    cursor: 'pointer',
+                                    '&:hover': { textDecoration: 'underline' },
                                 }}
                             >
                                 {label}
-                            </Button>
+                            </Typography>
                         ))}
                     </Box>
 
-                    <Box sx={{ flexGrow: 0, ml: 2 }}>
-                        <Tooltip title="User settings">
-                            <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                <Avatar alt="User" src="/static/images/avatar/2.jpg" />
-                            </IconButton>
-                        </Tooltip>
-                        <Menu
-                            sx={{ mt: '45px' }}
-                            id="menu-appbar"
-                            anchorEl={anchorElUser}
-                            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                            keepMounted
-                            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                            open={Boolean(anchorElUser)}
-                            onClose={handleCloseUserMenu}
-                        >
-                            {[t.Profile, t.Dashboard, t.Logout].map((setting) => (
-                                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                                    <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
+                    {user ? (
+                        <Box sx={{ flexGrow: 0, ml: 2 }}>
+                            <Tooltip title="User settings">
+                                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                                    <Avatar alt="User" src={user.photoURL || "/static/images/avatar/2.jpg"} />
+                                </IconButton>
+                            </Tooltip>
+                            <Menu
+                                sx={{ mt: '45px' }}
+                                id="menu-appbar"
+                                anchorEl={anchorElUser}
+                                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                                keepMounted
+                                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                                open={Boolean(anchorElUser)}
+                                onClose={handleCloseUserMenu}
+                            >
+                                <MenuItem onClick={handleCloseUserMenu}>
+                                    <Typography sx={{ textAlign: 'center' }}>{t.Profile}</Typography>
                                 </MenuItem>
-                            ))}
-                        </Menu>
-                    </Box>
+                                <MenuItem onClick={handleCloseUserMenu}>
+                                    <Typography sx={{ textAlign: 'center' }}>{t.Dashboard}</Typography>
+                                </MenuItem>
+                                <MenuItem onClick={handleLogoutClick}>
+                                    <Typography sx={{ textAlign: 'center' }}>{t.Logout}</Typography>
+                                </MenuItem>
+                            </Menu>
+                        </Box>
+                    ) : (
+                        <Box sx={{ flexGrow: 0, ml: 2 }}>
+                            <Typography
+                                component={Link}
+                                to="/auth"
+                                sx={{
+                                    color: 'white',
+                                    textDecoration: 'none',
+                                    cursor: 'pointer',
+                                    '&:hover': { textDecoration: 'underline' }
+                                }}
+                            >
+                                {t.Register}
+                            </Typography>
+                        </Box>
+                    )}
 
                     <Box sx={{ flexGrow: 0, mr: 1, ml: 2 }}>
                         <IconButton onClick={toggleLanguage} color="inherit">
@@ -182,6 +223,15 @@ function ResponsiveAppBar() {
                     </Box>
                 </Toolbar>
             </Container>
+            <ConfirmDialog
+                open={openLogoutConfirm}
+                onClose={() => setOpenLogoutConfirm(false)}
+                onConfirm={handleConfirmLogout}
+                title={confirmDialogT.Logout_Title}
+                message= {confirmDialogT.Logout_Msg}
+                confirmText= {confirmDialogT.Logout_Text}
+                cancelText= {confirmDialogT.Logout_cancel}
+            />
         </AppBar>
     );
 }

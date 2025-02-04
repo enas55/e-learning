@@ -3,16 +3,23 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setLanguage } from '../redux/store';
 import { Card, CardContent, CardMedia, Typography, Button, Box, IconButton } from "@mui/material";
 import { Favorite, FavoriteBorder } from "@mui/icons-material";
+import { useNavigate } from 'react-router-dom';
 
-function CourseCard({ course, isFavorite, toggleFavorite, isJoined, toggleJoin }) {
+function CourseCard({ course, isFavorite, toggleFavorite, isJoined, toggleJoin, isFavoritePage }) {
     const dispatch = useDispatch();
-            const { language, translations } = useSelector((state) => state.translation);
-            const t = translations[language].courseCard;
-    
-            useEffect(() => {
-                    const savedLanguage = localStorage.getItem('appLanguage') || 'en';
-                    dispatch(setLanguage(savedLanguage));
-                }, [dispatch]);
+    const { language, translations } = useSelector((state) => state.translation);
+    const t = translations[language].courseCard;
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const savedLanguage = localStorage.getItem('appLanguage') || 'en';
+        dispatch(setLanguage(savedLanguage));
+    }, [dispatch]);
+
+    const handleViewCourse = () => {
+        navigate(`/course_details/${course.id}`);
+    };
+
     return (
         <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
             <CardMedia component="img" height="140" image={course.image} alt={course.title} />
@@ -27,14 +34,18 @@ function CourseCard({ course, isFavorite, toggleFavorite, isJoined, toggleJoin }
             </CardContent>
 
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 2 }}>
-                <Button variant="contained" sx={{ backgroundColor: "#1C1E53" }}>
+                <Button
+                    variant="contained"
+                    sx={{ backgroundColor: "#1C1E53" }}
+                    onClick={handleViewCourse}
+                >
                     {t.View_Course}
                 </Button>
 
                 <Box>
                     <Button
                         variant={isJoined ? "outlined" : "contained"}
-                        onClick={() => toggleJoin(course.id, course.title)}
+                        onClick={() => toggleJoin(course.id)}
                         sx={{
                             backgroundColor: isJoined ? "transparent" : "#1C1E53",
                             color: isJoined ? "#4CAF50" : "white",
@@ -48,13 +59,23 @@ function CourseCard({ course, isFavorite, toggleFavorite, isJoined, toggleJoin }
                     >
                         {isJoined ? t.Joined : t.Join}
                     </Button>
-                    
-                    <IconButton
-                        color={isFavorite ? "error" : "default"}
-                        onClick={() => toggleFavorite(course.id, course.title)}
-                    >
-                        {isFavorite ? <Favorite /> : <FavoriteBorder />}
-                    </IconButton>
+
+                    {isFavoritePage ? (
+                        <Button
+                            variant="contained"
+                            color="error"
+                            onClick={() => toggleFavorite(course.id)}
+                        >
+                            Remove from Favorites
+                        </Button>
+                    ) : (
+                        <IconButton
+                            color={isFavorite ? "error" : "default"}
+                            onClick={() => toggleFavorite(course.id)}
+                        >
+                            {isFavorite ? <Favorite /> : <FavoriteBorder />}
+                        </IconButton>
+                    )}
                 </Box>
             </Box>
         </Card>

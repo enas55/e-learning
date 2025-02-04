@@ -8,5 +8,9 @@
     "Confirm_Text_Unjoin" : "مغادرة",
     "Confirm_Text_Join" : "إنضمام",
     "Cancel_Text" : "إلغاء",
-    "Confirm_Text_Fav" : "حذف"
+    "Confirm_Text_Fav" : "حذف",
+    "Logout_Title" : "تأكيد تسجيل الخروج",
+    "Logout_Msg" : "هل انت متأكد انك تريد تسجيل الخروج؟",
+    "Logout_Text" : "نعم",
+    "Logout_cancel" : "لا"
 }

@@ -8,5 +8,9 @@
     "Confirm_Text_Unjoin" : "Unjoin",
     "Confirm_Text_Join" : "Join",
     "Cancel_Text" : "Cancel",
-    "Confirm_Text_Fav" : "Remove"
+    "Confirm_Text_Fav" : "Remove",
+    "Logout_Title" : "Confirm Logout",
+    "Logout_Msg" : "Are you sure you want to logout?",
+    "Logout_Text" : "Yes",
+    "Logout_cancel" : "No"
 }
