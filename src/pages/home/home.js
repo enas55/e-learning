@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { setLanguage, setFavorites, addFavorite, removeFavorite } from '../../redux/store';
-import { useLocation, useNavigate } from "react-router-dom"; // استيراد useNavigate
+import { useLocation, useNavigate } from "react-router-dom";
 import { collection, getDocs, doc, updateDoc, arrayUnion, arrayRemove, getDoc } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { db } from "../../firebase/firebaseConfig";
@@ -38,9 +38,10 @@ function Home() {
     const t = translations[language].confirmDialog;
     const titleT = translations[language].filterAndMainTiltles;
     const snackbarT = translations[language].snackbar;
+    const pageNameT = translations[language].pageNames;
     const [userId, setUserId] = useState(null);
     const favoriteCourses = useSelector((state) => state.favorites.favoriteCourses);
-    const navigate = useNavigate(); // استخدام useNavigate
+    const navigate = useNavigate();
 
     const loadFavorites = useCallback(async (userId) => {
         try {
@@ -55,6 +56,27 @@ function Home() {
         }
     }, [dispatch]);
 
+    const loadJoinedCourses = useCallback(async (userId) => {
+        try {
+            const userRef = doc(db, "users", userId);
+            const userDoc = await getDoc(userRef);
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                const joinedCoursesMap = {};
+                if (userData.joinedCourses) {
+                    userData.joinedCourses.forEach((courseId) => {
+                        joinedCoursesMap[courseId] = true;
+                    });
+                }
+                setJoinedCourses(joinedCoursesMap);
+            }
+        } catch (error) {
+            console.error("Error loading joined courses:", error);
+        }
+    }, []);
+
+
+    
     useEffect(() => {
         const auth = getAuth();
         const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -64,20 +86,26 @@ function Home() {
                 loadJoinedCourses(user.uid);
             } else {
                 setUserId(null);
+                setJoinedCourses({});
+                dispatch(setFavorites([]));
             }
         });
 
         return () => unsubscribe();
-    }, [loadFavorites]);
+    }, [loadFavorites, loadJoinedCourses, dispatch]);
 
+    
+    // lang fun
     useEffect(() => {
         const savedLanguage = localStorage.getItem('appLanguage') || 'en';
         dispatch(setLanguage(savedLanguage));
     }, [dispatch]);
 
+
+    //  page title
     useEffect(() => {
-        document.title = "Home";
-    }, [location]);
+        document.title = pageNameT.Home_Page;
+    }, [location, pageNameT]);
 
     useEffect(() => {
         const fetchCourses = async () => {
@@ -99,29 +127,9 @@ function Home() {
         fetchCourses();
     }, []);
 
-    const loadJoinedCourses = async (userId) => {
-        try {
-            const userRef = doc(db, "users", userId);
-            const userDoc = await getDoc(userRef);
-            if (userDoc.exists()) {
-                const userData = userDoc.data();
-                const joinedCoursesMap = {};
-                if (userData.joinedCourses) {
-                    userData.joinedCourses.forEach((courseId) => {
-                        joinedCoursesMap[courseId] = true;
-                    });
-                }
-                setJoinedCourses(joinedCoursesMap);
-            }
-        } catch (error) {
-            console.error("Error loading joined courses:", error);
-        }
-    };
-
     const handleJoinClick = async (courseId, courseTitle) => {
         if (!userId) {
-            // إذا لم يكن المستخدم مسجل الدخول، يتم إعادة توجيهه إلى صفحة المصادقة
-            navigate("/auth"); // إعادة التوجيه إلى صفحة المصادقة
+            navigate("/auth");
             return;
         }
 
@@ -250,6 +258,8 @@ function Home() {
         ],
     };
 
+
+    // cat part
     const uniqueCategories = Array.from(new Set(courses.flatMap((course) => course.category)));
 
     const handleCategoryClick = (category) => {
@@ -259,10 +269,11 @@ function Home() {
         setOpenCategoryModal(true);
     };
 
+
+    // fav part
     const toggleFavorite = async (courseId, courseTitle) => {
         if (!userId) {
-            // إذا لم يكن المستخدم مسجل الدخول، يتم إعادة توجيهه إلى صفحة المصادقة
-            navigate("/auth"); // إعادة التوجيه إلى صفحة المصادقة
+            navigate("/auth");
             return;
         }
 
@@ -277,7 +288,7 @@ function Home() {
             dispatch(addFavorite(courseId));
             setSnackbarMessage(snackbarT.Snackbar_Added_to_Fav);
             setOpenSnackbar(true);
-            await loadFavorites(userId); // إعادة تحميل المفضلات بعد الإضافة
+            await loadFavorites(userId);
         }
     };
 
@@ -291,7 +302,7 @@ function Home() {
             dispatch(removeFavorite(courseId));
             setSnackbarMessage(snackbarT.Snackbar_Remove_From_Fav);
             setOpenSnackbar(true);
-            await loadFavorites(userId); // إعادة تحميل المفضلات بعد الإزالة
+            await loadFavorites(userId);
         }
         setOpenFavoriteDialog(false);
     };
@@ -358,8 +369,8 @@ function Home() {
                                 );
                             })}
                         </Box>
-
-                        <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
+                        <br/>
+                        <Box sx={{ display: "flex", justifyContent: "center", mb: 4}}>
                             <Pagination
                                 count={Math.ceil(popularCourses.length / 6)}
                                 page={currentPopularPage}

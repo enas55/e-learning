@@ -23,6 +23,7 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'fire
 import { setDoc, doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../../firebase/firebaseConfig';
 
+
 function AuthForm() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -144,7 +145,7 @@ function AuthForm() {
             try {
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
-                const userData = userDoc.data();
+                // const userData = userDoc.data();
 
                 if (!userDoc.exists()) {
                     setLoading(false);
@@ -156,7 +157,7 @@ function AuthForm() {
                 setAlertMessage(t.login_successful);
                 setAlertSeverity('success');
                 setTimeout(() => {
-                    navigate(userData.role === 'admin' ? '/admin-dashboard' : '/user-dashboard');
+                    navigate('/');
                 }, 2000);
                 setEmail('');
                 setPassword('');

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setLanguage } from '../redux/store';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AppBar, Box, Toolbar, IconButton, Typography, Menu, MenuItem, TextField, Avatar, Tooltip, Container, Badge } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import LanguageIcon from '@mui/icons-material/Language';
@@ -9,9 +9,12 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import { auth } from '../firebase/firebaseConfig';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import ConfirmDialog from './confirmDialog';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../firebase/firebaseConfig';
 
 function ResponsiveAppBar() {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { language, translations } = useSelector((state) => state.translation);
     const { favoriteCourses } = useSelector((state) => state.favorites);
     const t = translations[language].navbar;
@@ -21,14 +24,24 @@ function ResponsiveAppBar() {
     const [anchorElNav, setAnchorElNav] = useState(null);
     const [anchorElUser, setAnchorElUser] = useState(null);
     const [user, setUser] = useState(null);
+    const [userRole, setUserRole] = useState(null);
     const [openLogoutConfirm, setOpenLogoutConfirm] = useState(false);
 
     useEffect(() => {
         const savedLanguage = localStorage.getItem('appLanguage') || 'en';
         dispatch(setLanguage(savedLanguage));
 
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             setUser(currentUser);
+            if (currentUser) {
+                const userRef = doc(db, "users", currentUser.uid);
+                const userDoc = await getDoc(userRef);
+                if (userDoc.exists()) {
+                    setUserRole(userDoc.data().role);
+                }
+            } else {
+                setUserRole(null);
+            }
         });
 
         return () => unsubscribe();
@@ -58,11 +71,21 @@ function ResponsiveAppBar() {
         setOpenLogoutConfirm(false);
         await signOut(auth);
         setUser(null);
+        setUserRole(null);
+        navigate("/");
     };
 
     const toggleLanguage = () => {
         const newLanguage = language === 'en' ? 'ar' : 'en';
         dispatch(setLanguage(newLanguage));
+    };
+
+    const handleDashboardClick = () => {
+        if (userRole === 'admin') {
+            navigate('/admin-dashboard');
+        } else {
+            navigate('/user-dashboard');
+        }
     };
 
     let pages = [
@@ -71,13 +94,13 @@ function ResponsiveAppBar() {
     ];
 
     if (user) {
-        pages.push({ 
+        pages.push({
             label: (
                 <Badge badgeContent={favoriteCourses.length} color="warning">
                     {t.Favorite}
                 </Badge>
-            ), 
-            path: '/favorite' 
+            ),
+            path: '/favorite'
         });
     }
 
@@ -162,9 +185,8 @@ function ResponsiveAppBar() {
                                     my: 2,
                                     mx: 2,
                                     color: isActive(path) ? '#FCD980' : 'white',
-                                    textDecoration: isActive(path) ? 'underline' : 'none',
+                                    textDecoration: 'none',
                                     cursor: 'pointer',
-                                    '&:hover': { textDecoration: 'underline' },
                                 }}
                             >
                                 {label}
@@ -192,8 +214,10 @@ function ResponsiveAppBar() {
                                 <MenuItem onClick={handleCloseUserMenu}>
                                     <Typography sx={{ textAlign: 'center' }}>{t.Profile}</Typography>
                                 </MenuItem>
-                                <MenuItem onClick={handleCloseUserMenu}>
-                                    <Typography sx={{ textAlign: 'center' }}>{t.Dashboard}</Typography>
+                                <MenuItem onClick={handleDashboardClick}>
+                                    <Typography sx={{ textAlign: 'center' }}>
+                                        {t.Dashboard}
+                                    </Typography>
                                 </MenuItem>
                                 <MenuItem onClick={handleLogoutClick}>
                                     <Typography sx={{ textAlign: 'center' }}>{t.Logout}</Typography>

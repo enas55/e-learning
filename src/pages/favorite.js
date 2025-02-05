@@ -7,6 +7,7 @@ import ConfirmDialog from '../components/confirmDialog';
 import { useDispatch, useSelector } from 'react-redux';
 import { removeFavorite, setFavorites} from '../redux/store';
 import CustomSnackbar from '../components/snackbarComponent';
+import {useLocation } from 'react-router-dom';
 
 function Favorite() {
     const [favoriteCourses, setFavoriteCourses] = useState([]);
@@ -24,6 +25,12 @@ function Favorite() {
     const t = translations[language].favorite;
     const confirmDialogT = translations[language].confirmDialog;
     const snackbarT = translations[language].snackbar;
+    const pageNameT = translations[language].pageNames;
+    const location = useLocation();
+
+    useEffect(() => {
+            document.title = pageNameT.Favorite_Page;
+        }, [location, pageNameT]);
 
     // fetch fav courses
     const fetchFavoriteCourses = useCallback(async () => {

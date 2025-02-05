@@ -23,18 +23,3 @@ export const db = getFirestore(app);
 
 
 
-
-// useEffect(() => {
-//         const auth = getAuth();
-//         const unsubscribe = onAuthStateChanged(auth, (user) => {
-//             if (user) {
-//                 setUserId(user.uid);
-//                 loadFavorites(user.uid);
-//             } else {
-//                 setUserId(null);
-//             }
-//         });
-
-//         return () => unsubscribe();
-//     });
-

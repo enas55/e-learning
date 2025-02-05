@@ -44,6 +44,7 @@ function AllCourses() {
     const t = translations[language].confirmDialog;
     const filterAndTitleT = translations[language].filterAndMainTiltles;
     const snackbarT = translations[language].snackbar;
+    const pageNameT = translations[language].pageNames;
     const [userId, setUserId] = useState(null);
     const favoriteCourses = useSelector((state) => state.favorites.favoriteCourses);
     const navigate = useNavigate();
@@ -82,8 +83,8 @@ function AllCourses() {
     }, [dispatch]);
 
     useEffect(() => {
-        document.title = "All Courses";
-    }, [location]);
+        document.title = pageNameT.All_Courses;
+    }, [location, pageNameT]);
 
     useEffect(() => {
         const fetchCourses = async () => {
@@ -408,7 +409,7 @@ function AllCourses() {
                                 );
                             })}
                         </Box>
-
+                        <br/>
                         <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
                             <Pagination
                                 count={Math.ceil(filteredCourses.length / coursesPerPage)}
