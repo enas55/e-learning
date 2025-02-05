@@ -19,6 +19,10 @@ import courseDetailsEn from '../locales/en/courseDetailsEn.json';
 import courseDetailsAr from '../locales/ar/courseDetailsAr.json';
 import favoriteEn from '../locales/en/favoriteEn.json';
 import favoriteAr from '../locales/ar/favoriteAr.json';
+import userDashboardEn from '../locales/en/userDasboardEn.json';
+import userDashboardAr from '../locales/ar/userDashboardAr.json';
+import pageNamesEn from '../locales/en/pageNamesEn.json';
+import pageNamesAr from '../locales/ar/pagesNamesAr.json';
 
 // Fav slice
 const favoritesSlice = createSlice({
@@ -57,7 +61,9 @@ const translationSlice = createSlice({
         filterAndMainTiltles: filterAndMainTitlesEn,
         snackbar: snackbarEn,
         courseDetails : courseDetailsEn,
-        favorite: favoriteEn
+        favorite: favoriteEn,
+        userDashboard: userDashboardEn,
+        pageNames: pageNamesEn
       },
       ar: {
         navbar: navbarAr,
@@ -69,7 +75,9 @@ const translationSlice = createSlice({
         filterAndMainTiltles: filterAndMainTitlesAr,
         snackbar: snackbarAr,
         courseDetails: courseDetailsAr,
-        favorite: favoriteAr
+        favorite: favoriteAr,
+        userDashboard: userDashboardAr,
+        pageNames: pageNamesAr
       },
     },
   },

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db } from '../firebase/firebaseConfig';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
@@ -30,7 +30,7 @@ function CourseDetails() {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-    const [confirmFavoriteDialogOpen, setConfirmFavoriteDialogOpen] = useState(false); // حالة جديدة لتتبع Confirm Dialog للمفضلة
+    const [confirmFavoriteDialogOpen, setConfirmFavoriteDialogOpen] = useState(false);
     const [userId, setUserId] = useState(null);
     const dispatch = useDispatch();
     const favoriteCourses = useSelector((state) => state.favorites.favoriteCourses);
@@ -38,6 +38,13 @@ function CourseDetails() {
     const t = translations[language].confirmDialog;
     const snackbarT = translations[language].snackbar;
     const courseDetailsT = translations[language].courseDetails;
+    const pageNameT = translations[language].pageNames;
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+            document.title = pageNameT.Course_Details_Page;
+        }, [location, pageNameT]);
 
     const loadJoinedCourses = useCallback(async (userId) => {
         try {
@@ -104,7 +111,7 @@ function CourseDetails() {
 
     const handleJoinClick = () => {
         if (!userId) {
-            console.error("User is not logged in.");
+            navigate('/auth');
             return;
         }
 
@@ -137,8 +144,7 @@ function CourseDetails() {
 
     const handleFavoriteClick = async () => {
         if (!userId) {
-            console.error("User is not logged in");
-            return;
+            navigate('/auth');
         }
 
         if (isFavorite) {
@@ -186,7 +192,7 @@ function CourseDetails() {
     if (loading) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                <CircularProgress />
+                <CircularProgress sx={{color: "#1C1E53"}}/>
             </Box>
         );
     }
