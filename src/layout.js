@@ -7,7 +7,7 @@ function Layout() {
     return (
         <div sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
             <Navbar />
-            <div sx={{ flex: 1 }}>
+            <div>
                 <Outlet/>
             </div>
             <Footer />
