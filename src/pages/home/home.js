@@ -75,8 +75,6 @@ function Home() {
         }
     }, []);
 
-
-    
     useEffect(() => {
         const auth = getAuth();
         const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -94,15 +92,11 @@ function Home() {
         return () => unsubscribe();
     }, [loadFavorites, loadJoinedCourses, dispatch]);
 
-    
-    // lang fun
     useEffect(() => {
         const savedLanguage = localStorage.getItem('appLanguage') || 'en';
         dispatch(setLanguage(savedLanguage));
     }, [dispatch]);
 
-
-    //  page title
     useEffect(() => {
         document.title = pageNameT.Home_Page;
     }, [location, pageNameT]);
@@ -258,19 +252,15 @@ function Home() {
         ],
     };
 
-
-    // cat part
-    const uniqueCategories = Array.from(new Set(courses.flatMap((course) => course.category)));
+    const uniqueCategories = Array.from(new Set(courses.flatMap((course) => course.category || [])));
 
     const handleCategoryClick = (category) => {
-        const filtered = courses.filter((course) => course.category.includes(category));
+        const filtered = courses.filter((course) => course.category && course.category.includes(category));
         setCategoryCourses(filtered);
         setSelectedCategory(category);
         setOpenCategoryModal(true);
     };
 
-
-    // fav part
     const toggleFavorite = async (courseId, courseTitle) => {
         if (!userId) {
             navigate("/auth");

@@ -249,6 +249,8 @@ function AllCourses() {
         new Set(courses.flatMap((course) => course.category))
     );
 
+
+
     return (
         <div>
             <Container sx={{ mt: 4, mb: 4 }}>
