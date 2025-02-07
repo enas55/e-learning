@@ -1,19 +1,26 @@
 import React, { useState } from "react";
 import { TextField, Button, Card, CardContent, Typography } from "@mui/material";
 import { db } from "../firebase/firebaseConfig";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc } from "firebase/firestore";
+import SnackbarComponent from "../components/snackbarComponent";
+import { useSelector } from "react-redux";
 
 const AddCourse = ({ onCourseAdded }) => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    imageUrl: "",
+    image: "",
     createdBy: "",
     price: "",
+    category: "",
   });
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const { translations, language } = useSelector((state) => state.translation);
+  const t = translations[language].addCourse;
+  const snackbarT = translations[language].snackbar;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,12 +29,13 @@ const AddCourse = ({ onCourseAdded }) => {
 
   const validate = () => {
     let tempErrors = {};
-    if (!formData.title) tempErrors.title = "Title is required";
-    if (!formData.description) tempErrors.description = "Description is required";
-    if (!formData.imageUrl) tempErrors.imageUrl = "Image URL is required";
-    if (!/^https?:\/\/.+/.test(formData.imageUrl)) tempErrors.imageUrl = "Invalid URL";
-    if (!formData.createdBy) tempErrors.createdBy = "Creator name is required";
-    if (!formData.price || formData.price <= 0) tempErrors.price = "Price must be a positive number";
+    if (!formData.title) tempErrors.title = t.Title_Valid;
+    if (!formData.description) tempErrors.description = t.Description_Valid;
+    if (!formData.image) tempErrors.image = t.Img_URL_Valid;
+    if (!/^https?:\/\/.+/.test(formData.image)) tempErrors.image = t.Img_URL_Valid_2;
+    if (!formData.createdBy) tempErrors.createdBy = t.Creator_Valid;
+    if (!formData.price || formData.price <= 0) tempErrors.price = t.Price_Valid;
+    if (!formData.category) tempErrors.category = t.Category_Valid;
 
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
@@ -41,10 +49,10 @@ const AddCourse = ({ onCourseAdded }) => {
         const docRef = await addDoc(collection(db, "courses"), {
           title: formData.title,
           description: formData.description,
-          imageUrl: formData.imageUrl,
+          image: formData.image,
           createdBy: formData.createdBy,
           price: Number(formData.price),
-          createdAt: serverTimestamp(),
+          category: formData.category,
         });
         console.log("Course added with ID:", docRef.id);
 
@@ -57,8 +65,10 @@ const AddCourse = ({ onCourseAdded }) => {
           });
         }
 
-        setFormData({ title: "", description: "", imageUrl: "", createdBy: "", price: "" });
+        setFormData({ title: "", description: "", image: "", createdBy: "", price: "", category: "" });
         setErrors({});
+
+        setOpenSnackbar(true);
       } catch (error) {
         console.error("Error adding course:", error);
       }
@@ -66,18 +76,21 @@ const AddCourse = ({ onCourseAdded }) => {
     }
   };
 
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
+
   return (
     <Card sx={{ maxWidth: 500, color: "#1C1E53", margin: "auto", mt: 5, p: 3 }}>
       <CardContent>
         <Typography variant="h5" gutterBottom>
-          Add New Course
+          {t.Add_New_Course}
         </Typography>
         <form onSubmit={handleSubmit}>
           <TextField
             fullWidth
             margin="normal"
-            label="Title"
-            name="title"
+            label= {t.Title}
             value={formData.title}
             onChange={handleChange}
             error={Boolean(errors.title)}
@@ -93,8 +106,7 @@ const AddCourse = ({ onCourseAdded }) => {
           <TextField
             fullWidth
             margin="normal"
-            label="Description"
-            name="description"
+            label= {t.Description}
             multiline
             rows={3}
             value={formData.description}
@@ -112,12 +124,11 @@ const AddCourse = ({ onCourseAdded }) => {
           <TextField
             fullWidth
             margin="normal"
-            label="Image URL"
-            name="imageUrl"
-            value={formData.imageUrl}
+            label= {t.Img_URL}
+            value={formData.image}
             onChange={handleChange}
-            error={Boolean(errors.imageUrl)}
-            helperText={errors.imageUrl}
+            error={Boolean(errors.image)}
+            helperText={errors.image}
             sx={{
               "& .MuiInputLabel-root": { color: "#1C1E53" },
               "& .MuiInputLabel-root.Mui-focused": { color: "#1C1E53" },
@@ -125,13 +136,11 @@ const AddCourse = ({ onCourseAdded }) => {
                 "&.Mui-focused fieldset": { borderColor: "#1C1E53" }
               }
             }}
-            
           />
           <TextField
             fullWidth
             margin="normal"
-            label="Created By"
-            name="createdBy"
+            label= {t.Created_by}
             value={formData.createdBy}
             onChange={handleChange}
             error={Boolean(errors.createdBy)}
@@ -147,8 +156,7 @@ const AddCourse = ({ onCourseAdded }) => {
           <TextField
             fullWidth
             margin="normal"
-            label="Price"
-            name="price"
+            label= {t.Price}
             type="number"
             value={formData.price}
             onChange={handleChange}
@@ -162,17 +170,40 @@ const AddCourse = ({ onCourseAdded }) => {
               }
             }}
           />
+          <TextField
+            fullWidth
+            margin="normal"
+            label= {t.Category}
+            value={formData.category}
+            onChange={handleChange}
+            error={Boolean(errors.category)}
+            helperText={errors.category}
+            sx={{
+              "& .MuiInputLabel-root": { color: "#1C1E53" },
+              "& .MuiInputLabel-root.Mui-focused": { color: "#1C1E53" },
+              "& .MuiOutlinedInput-root": {
+                "&.Mui-focused fieldset": { borderColor: "#1C1E53" }
+              }
+            }}
+          />
           <Button
             type="submit"
             variant="contained"
             fullWidth
-            sx={{ mt: 2, bgcolor: "#1C1E53" }}
+            sx={{ mt: 2, bgcolor: "#1C1E53" , padding: 1}}
             disabled={loading}
           >
-            {loading ? "Adding..." : "Add Course"}
+            {loading ? t.Loading : t.Add_Course_Btn}
           </Button>
         </form>
       </CardContent>
+
+      
+      <SnackbarComponent
+        open={openSnackbar}
+        message= {snackbarT.Snackbar_Added_New_Course}
+        onClose={handleCloseSnackbar}
+      />
     </Card>
   );
 };

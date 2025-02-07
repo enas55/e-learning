@@ -1,68 +1,50 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Container, Card, CardContent, Typography } from '@mui/material';
-import { Box } from '@mui/system';
-import {Delete, Edit, Add } from '@mui/icons-material';
-
-const dashboardItems = [
-  { title: 'Add Course',icon: <Add fontSize="large" />, path: "/add-course" },
-  { title: 'Edit Course',icon: <Edit fontSize="large" />, path: "/edit-course" },
-  { title: 'Delete Course',icon: <Delete fontSize="large" />, path: "/delete-course" }
-];
+import React from "react";
+import { Container, Typography, Box } from "@mui/material";
+import { useSelector } from "react-redux";
+import DashboardCard from "../components/dashboardCard";
+import { Add, Edit, Delete } from "@mui/icons-material";
 
 const AdminDashboard = () => {
-  const navigate = useNavigate();
+  const { translations, language } = useSelector((state) => state.translation);
+  const t = translations[language].adminDashboard;
 
-  const handleCardClick = (path) => {
-    navigate(path);
-  };
+  const dashboardItems = [
+    { title: t.Add_Course, icon: <Add fontSize="large" />, path: "/add-course" },
+    { title: t.Edit_Course, icon: <Edit fontSize="large" />, path: "/edit-course" },
+    { title: t.Delete_Course, icon: <Delete fontSize="large" />, path: "/delete-course" },
+  ];
 
   return (
     <Container maxWidth="lg">
-      <Typography 
-        variant="h3" 
-        sx={{ 
-          marginBottom: 4, 
-          marginTop: 4, 
-          textAlign: "center", 
-          color: "#1C1E53", 
-          fontWeight: "bold" 
+      <Typography
+        variant="h3"
+        sx={{
+          marginBottom: 4,
+          marginTop: 4,
+          textAlign: "center",
+          color: "#1C1E53",
         }}
       >
-        Admin Dashboard
+        {t.Admin_Dashboard}
       </Typography>
 
-      <Box 
-        sx={{ 
-          display: "grid", 
-          gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", 
-          gap: 4, 
-          marginBottom: 6 
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+          gap: 4,
+          marginBottom: 20,
+          marginTop:10
+          
         }}
       >
         {dashboardItems.map((item, index) => (
-          <Card 
-            key={index} 
-            sx={{ 
-              textAlign: 'center', 
-              padding: 2, 
-              boxShadow: 3, 
-              borderRadius: 2, 
-              cursor: "pointer", 
-              transition: "0.3s", 
-              "&:hover": { boxShadow: 6 } 
-            }}
-            onClick={() => handleCardClick(item.path)}
-          >
-            <CardContent>
-              <Box sx={{ color: '#1C1E53', marginBottom: 1 }}>
-                {item.icon}
-              </Box>
-              <Typography variant="h6" fontWeight="bold">
-                {item.title}
-              </Typography>
-            </CardContent>
-          </Card>
+          <DashboardCard
+            key={index}
+            title={item.title}
+            icon={item.icon}
+            path={item.path}
+          />
         ))}
       </Box>
     </Container>

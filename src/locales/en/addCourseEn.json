@@ -1,0 +1,18 @@
+{
+    "Add_New_Course" : "Add New Course",
+    "Title" : "Title",
+    "Description" : "Description",
+    "Img_URL" : "Image URL",
+    "Created_by" : "Created By",
+    "Price" : "Price",
+    "Category"  : "Category",
+    "Loading" : "Loading...",
+    "Add_Course_Btn" : "Add Course",
+    "Title_Valid" : "Title is required",
+    "Description_Valid" : "Description is required",
+    "Img_URL_Valid" : "Image URL is required",
+    "Img_URL_Valid_2" : "Invalid URL",
+    "Creator_Valid" : "Creator name is required",
+    "Price_Valid" : "Price must be a positive number",
+    "Category_Valid" : "Category is required"
+}

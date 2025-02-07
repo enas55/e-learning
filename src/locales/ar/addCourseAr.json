@@ -1,0 +1,18 @@
+{
+    "Add_New_Course" : "إضافة كورس جديد",
+    "Title" : "العنوان",
+    "Description" : "الوصف",
+    "Img_URL" : "رابط الصورة",
+    "Created_by" : "إنشاء بواسطة",
+    "Price" : "السعر",
+    "Category"  : "التصنيف",
+    "Loading" : "تحميل...",
+    "Add_Course_Btn" : "إضافة الكورس",
+    "Title_Valid" : "العنوان مطلوب",
+    "Description_Valid" : "الوصف مطلوب",
+    "Img_URL_Valid" : "رابط الصورة مطلوب",
+    "Img_URL_Valid_2" : "رابط غير صالح",
+    "Creator_Valid" : "المنشئ مطلوب",
+    "Price_Valid" : "يجب ان يكون السعر رقم موجب",
+    "Category_Valid" : "التصنيف مطلوب"
+}
