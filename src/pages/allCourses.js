@@ -217,7 +217,7 @@ function AllCourses() {
 
         if (categoryFilter) {
             filtered = filtered.filter((course) =>
-                course.category.includes(categoryFilter)
+                course.category && course.category.includes(categoryFilter)
             );
         }
 
@@ -246,10 +246,8 @@ function AllCourses() {
     };
 
     const uniqueCategories = Array.from(
-        new Set(courses.flatMap((course) => course.category))
+        new Set(courses.flatMap((course) => course.category || []))
     );
-
-
 
     return (
         <div>
