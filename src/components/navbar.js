@@ -11,7 +11,7 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import ConfirmDialog from './confirmDialog';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase/firebaseConfig';
-
+import Profile from '../pages/profile';
 function ResponsiveAppBar() {
     const dispatch = useDispatch();
     const navigate = useNavigate();

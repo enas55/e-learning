@@ -12,6 +12,7 @@ import AdminDashboard from './pages/adminDashboard';
 import AddCourse from './pages/addCourses';
 import EditCourse from './pages/editCourse';
 import DeleteCourse from './pages/deleteCourse';
+import Profile from './pages/profile';
 
 function App() {
   return (
@@ -27,6 +28,8 @@ function App() {
                     <Route path="/add-course" element={<AddCourse />} />
                     <Route path="/edit-course" element={<EditCourse />} />
                     <Route path="/delete-course" element={<DeleteCourse />} />
+                    <Route path="/profile" element={<Profile />} />
+
                 </Route>
                 <Route path="/auth" element={<AuthForm />} />
             </Routes>

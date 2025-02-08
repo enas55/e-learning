@@ -1,0 +1,59 @@
+.profile-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+  }
+
+  .profile-layout {
+    display: flex;
+    gap: 30px; /* Space between sections */
+    width: 100%;
+    max-width: 1200px;
+  }
+
+  .profile-card {
+    flex: 1; /* Profile card takes 1 part of the space */
+    max-width: 350px;
+  }
+
+  .profile-details {
+    flex: 2; /* Details section takes 2 parts of the space */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .work-preferences,
+  .info,
+  .experience,
+  .work {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .work-preferences:hover,
+  .info:hover,
+  .experience:hover,
+  .work:hover {
+    transform: scale(1.02);
+  }
+
+  .project,
+  .add-info {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #fff;
+    background-color: #2575fc;
+    margin-top: 10px;
+  }
+
+  .project:hover,
+  .add-info:hover {
+    background-color: #6a11cb;
+  }
