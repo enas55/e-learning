@@ -15,5 +15,10 @@
     "Logout_cancel" : "لا",
     "Delete_Course_Title" : "حذف كورس",
     "Delete_Course_Msg" : "هل انت متأكد انك تريد حذف هذا الكورس؟",
-    "Delete_Btn" : "حذف"
+    "Delete_Btn" : "حذف",
+    "Delete_User" : "حذف الإيميل",
+    "Delete_User_Msg" : "هل انت متأكد انك تريد حذف هذا الإيميل؟",
+    "Delete_Admin_Title": "لا يمكن ان تحذف أدمن",
+    "Delete_Admin_Msg": "هذا أدمن لا تستطيع حذفه",
+    "Ok_Btn": "حسنا"
 }
