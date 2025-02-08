@@ -1,12 +1,19 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { Container, Typography, Box } from "@mui/material";
 import { useSelector } from "react-redux";
 import DashboardCard from "../components/dashboardCard";
 import { Add, Edit, Delete } from "@mui/icons-material";
+import { useLocation} from "react-router-dom";
 
-const AdminDashboard = () => {
+function AdminDashboard (){
   const { translations, language } = useSelector((state) => state.translation);
   const t = translations[language].adminDashboard;
+  const pageNameT = translations[language].pageNames;
+  const location = useLocation();
+
+  useEffect(() => {
+    document.title = pageNameT.Admin_Dshboard_Page;
+}, [location, pageNameT]);
 
   const dashboardItems = [
     { title: t.Add_Course, icon: <Add fontSize="large" />, path: "/add-course" },

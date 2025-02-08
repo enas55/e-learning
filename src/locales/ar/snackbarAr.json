@@ -3,5 +3,8 @@
     "Snackbar_Remove_From_Fav" : "تم حذف هذا الكورس من المفضلة",
     "Snackbar_Joined_Courses" : "تم الإنضمام الى هذا الكورس بنجاح",
     "Snackbar_Unjoined_Courses" : "تم مغادرة هذا الكورس",
-    "Snackbar_Added_New_Course" : "تم إضافة الكورس بنجاح"
+    "Snackbar_Added_New_Course" : "تم إضافة الكورس بنجاح",
+    "Snackbar_No_Changes" : "لم يحدث اي تغييرات",
+    "Snackbar_Course_Update" : "تم تحديث الكورس بنجاح",
+    "Snackbar_Course_Delete" : "تم حذف الكورس بنجاح"
 }

@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TextField, Button, Card, CardContent, Typography } from "@mui/material";
 import { db } from "../firebase/firebaseConfig";
 import { collection, addDoc } from "firebase/firestore";
 import SnackbarComponent from "../components/snackbarComponent";
 import { useSelector } from "react-redux";
+import { useLocation} from "react-router-dom";
 
-const AddCourse = ({ onCourseAdded }) => {
+function AddCourse ({ onCourseAdded }) {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -21,6 +22,12 @@ const AddCourse = ({ onCourseAdded }) => {
   const { translations, language } = useSelector((state) => state.translation);
   const t = translations[language].addCourse;
   const snackbarT = translations[language].snackbar;
+  const pageNameT = translations[language].pageNames;
+  const location = useLocation();
+
+  useEffect(() => {
+    document.title = pageNameT.Add_Course_Page;
+}, [location, pageNameT]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -91,6 +98,7 @@ const AddCourse = ({ onCourseAdded }) => {
             fullWidth
             margin="normal"
             label= {t.Title}
+            name="title"
             value={formData.title}
             onChange={handleChange}
             error={Boolean(errors.title)}
@@ -107,6 +115,7 @@ const AddCourse = ({ onCourseAdded }) => {
             fullWidth
             margin="normal"
             label= {t.Description}
+            name="description"
             multiline
             rows={3}
             value={formData.description}
@@ -125,6 +134,7 @@ const AddCourse = ({ onCourseAdded }) => {
             fullWidth
             margin="normal"
             label= {t.Img_URL}
+            name="image"
             value={formData.image}
             onChange={handleChange}
             error={Boolean(errors.image)}
@@ -141,6 +151,7 @@ const AddCourse = ({ onCourseAdded }) => {
             fullWidth
             margin="normal"
             label= {t.Created_by}
+            name="createdBy"
             value={formData.createdBy}
             onChange={handleChange}
             error={Boolean(errors.createdBy)}
@@ -157,6 +168,7 @@ const AddCourse = ({ onCourseAdded }) => {
             fullWidth
             margin="normal"
             label= {t.Price}
+            name="price"
             type="number"
             value={formData.price}
             onChange={handleChange}
@@ -174,6 +186,7 @@ const AddCourse = ({ onCourseAdded }) => {
             fullWidth
             margin="normal"
             label= {t.Category}
+            name="category"
             value={formData.category}
             onChange={handleChange}
             error={Boolean(errors.category)}
