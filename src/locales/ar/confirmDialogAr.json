@@ -12,5 +12,8 @@
     "Logout_Title" : "تأكيد تسجيل الخروج",
     "Logout_Msg" : "هل انت متأكد انك تريد تسجيل الخروج؟",
     "Logout_Text" : "نعم",
-    "Logout_cancel" : "لا"
+    "Logout_cancel" : "لا",
+    "Delete_Course_Title" : "حذف كورس",
+    "Delete_Course_Msg" : "هل انت متأكد انك تريد حذف هذا الكورس؟",
+    "Delete_Btn" : "حذف"
 }

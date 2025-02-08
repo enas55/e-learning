@@ -1,0 +1,9 @@
+{
+    "Main_Title" : "Edit Course",
+    "Title_Label" : "Title",
+    "Description_Label" : "Description",
+    "Image_URL_Label" : "Image URL",
+    "Created_By_Label": "Created By",
+    "Price_Label" : "Price",
+    "Save_Changes_Btn" : "Save Changes"
+}

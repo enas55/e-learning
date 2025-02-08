@@ -3,5 +3,8 @@
     "Snackbar_Remove_From_Fav" : "The course has been removed from your favorites",
     "Snackbar_Joined_Courses" : "You have joined the course successfully",
     "Snackbar_Unjoined_Courses" : "You have unjoined the course",
-    "Snackbar_Added_New_Course" : "Course added successfully"
+    "Snackbar_Added_New_Course" : "Course added successfully",
+    "Snackbar_No_Changes" : "No Changes Were Made",
+    "Snackbar_Course_Update" : "Course updated successfully",
+    "Snackbar_Course_Delete" : "Course deleted successfully"
 }

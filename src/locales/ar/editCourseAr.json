@@ -1,0 +1,9 @@
+{
+    "Main_Title" : "تعديل كورس",
+    "Title_Label" : "العنوان",
+    "Description_Label" : "الوصف",
+    "Image_URL_Label" : "رابط الصورة",
+    "Created_By_Label": "تم الإنشاء بواسطة",
+    "Price_Label" : "السعر",
+    "Save_Changes_Btn" : "حفظ التغييرات"
+}

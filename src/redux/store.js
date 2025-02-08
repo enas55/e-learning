@@ -27,6 +27,8 @@ import adminDashboardEn from '../locales/en/adminDahboardEn.json';
 import adminDashboardAr from '../locales/ar/adminDashboardAr.json';
 import addCourseEn from '../locales/en/addCourseEn.json';
 import addCourseAr from '../locales/ar/addCourseAr.json';
+import editCourseEn from '../locales/en/editCourseEn.json';
+import editCourseAr from '../locales/ar/editCourseAr.json';
 
 // Fav slice
 const favoritesSlice = createSlice({
@@ -69,7 +71,8 @@ const translationSlice = createSlice({
         userDashboard: userDashboardEn,
         pageNames: pageNamesEn,
         adminDashboard: adminDashboardEn,
-        addCourse: addCourseEn
+        addCourse: addCourseEn,
+        editCourse: editCourseEn
       },
       ar: {
         navbar: navbarAr,
@@ -85,7 +88,8 @@ const translationSlice = createSlice({
         userDashboard: userDashboardAr,
         pageNames: pageNamesAr,
         adminDashboard: adminDashboardAr,
-        addCourse: addCourseAr
+        addCourse: addCourseAr,
+        editCourse: editCourseAr
       },
     },
   },

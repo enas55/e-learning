@@ -3,5 +3,8 @@
     "Course_Details_Page" : "Course Details",
     "Favorite_Page" : "Favorite",
     "User_Dashboard_Page" : "User Dashboard",
-    "All_Courses" : "All Courses"
+    "All_Courses" : "All Courses",
+    "Admin_Dshboard_Page" : "Admin Dashboard",
+    "Add_Course_Page" : "Add Course",
+    "Edit_Course_Page" : "Edit Course"
 }

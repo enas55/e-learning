@@ -3,5 +3,8 @@
     "Course_Details_Page" : "تفاصيل الكورس",
     "Favorite_Page" : "المفضلة",
     "User_Dashboard_Page" : "داشبورد المستخدم",
-    "All_Courses" : "الكورسات"
+    "All_Courses" : "الكورسات",
+    "Admin_Dshboard_Page" : "داشبورد الأدمن",
+    "Add_Course_Page" : "إضافة كورس",
+    "Edit_Course_Page" : "تعديل كورس"
 }

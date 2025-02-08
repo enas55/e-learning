@@ -12,5 +12,8 @@
     "Logout_Title" : "Confirm Logout",
     "Logout_Msg" : "Are you sure you want to logout?",
     "Logout_Text" : "Yes",
-    "Logout_cancel" : "No"
+    "Logout_cancel" : "No",
+    "Delete_Course_Title" : "Delete Course",
+    "Delete_Course_Msg" : "Are you sure you want to delete this course?",
+    "Delete_Btn" : "Delete"
 }
