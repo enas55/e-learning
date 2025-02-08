@@ -11,7 +11,7 @@ import UserDashboard from './pages/userDashboard';
 import AdminDashboard from './pages/adminDashboard';
 import AddCourse from './pages/addCourses';
 import EditCourse from './pages/editCourse';
-import DeleteCourse from './pages/deleteCourse';
+import Users from './pages/users';
 
 function App() {
   return (
@@ -26,7 +26,7 @@ function App() {
                     <Route path="/admin-dashboard" element={<AdminDashboard />} />
                     <Route path="/add-course" element={<AddCourse />} />
                     <Route path="/edit-course" element={<EditCourse />} />
-                    <Route path="/delete-course" element={<DeleteCourse />} />
+                    <Route path="/users" element={<Users/>} />
                 </Route>
                 <Route path="/auth" element={<AuthForm />} />
             </Routes>

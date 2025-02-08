@@ -2,7 +2,7 @@ import React, {useEffect} from "react";
 import { Container, Typography, Box } from "@mui/material";
 import { useSelector } from "react-redux";
 import DashboardCard from "../components/dashboardCard";
-import { Add, Edit, Delete } from "@mui/icons-material";
+import { Add, Edit, Person } from "@mui/icons-material";
 import { useLocation} from "react-router-dom";
 
 function AdminDashboard (){
@@ -18,7 +18,7 @@ function AdminDashboard (){
   const dashboardItems = [
     { title: t.Add_Course, icon: <Add fontSize="large" />, path: "/add-course" },
     { title: t.Edit_Course, icon: <Edit fontSize="large" />, path: "/edit-course" },
-    { title: t.Delete_Course, icon: <Delete fontSize="large" />, path: "/delete-course" },
+    { title: t.Users, icon: <Person fontSize="large" />, path: "/users" },
   ];
 
   return (

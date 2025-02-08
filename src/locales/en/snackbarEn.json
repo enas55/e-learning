@@ -6,5 +6,6 @@
     "Snackbar_Added_New_Course" : "Course added successfully",
     "Snackbar_No_Changes" : "No Changes Were Made",
     "Snackbar_Course_Update" : "Course updated successfully",
-    "Snackbar_Course_Delete" : "Course deleted successfully"
+    "Snackbar_Course_Delete" : "Course deleted successfully",
+    "Snackbar_User_Delete" : "User Email deleted successfully"
 }
