@@ -113,22 +113,17 @@ function UserDashboard() {
     </Box>
   );
 
-  if (!userData) return <Typography>No user data found</Typography>;
+  if (!userData) return <Typography>{t.No_Data_Found}</Typography>;
 
   return (
     <Container maxWidth="lg" sx={{ marginTop: 4, marginBottom: 6 }}>
-      {/* User Dashboard Title */}
       <Typography variant="h3" sx={{ marginBottom: 4, textAlign: "center", color: "#1C1E53", fontWeight: "bold" }}>
         {t.Main_Title}
       </Typography>
 
-      {/* Joined Courses Section */}
+      {/* Joined Courses */}
       <Paper elevation={3} sx={{ padding: 3, borderRadius: 2, backgroundColor: "#f5f5f5" }}>
-        <Typography variant="h5" fontWeight={"bold"} color="#1C1E53" sx={{ marginBottom: 3 }}>
-          {t.Joined_Title}
-        </Typography>
 
-        {/* Using Box with Flexbox */}
         <Box sx={{ 
           display: 'flex', 
           flexWrap: 'wrap', 
@@ -154,7 +149,7 @@ function UserDashboard() {
             ))
           ) : (
             <Typography variant="body1" sx={{ color: "text.secondary", textAlign: "center", width: "100%" }}>
-              No joined courses yet.
+              {t.No_Course_Found}
             </Typography>
           )}
         </Box>

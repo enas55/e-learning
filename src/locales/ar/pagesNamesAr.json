@@ -7,5 +7,6 @@
     "Admin_Dshboard_Page" : "داشبورد الأدمن",
     "Add_Course_Page" : "إضافة كورس",
     "Edit_Course_Page" : "تعديل كورس",
-    "Users_Page"  : "المستخدمين"
+    "Users_Page"  : "المستخدمين",
+    "Joined_Courses_Page" : "الكورسات التي تم الإنضمام إليها"
 }
