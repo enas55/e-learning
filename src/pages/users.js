@@ -26,6 +26,7 @@ function Users() {
   const [loading, setLoading] = useState(true);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [openAdminConfirmDialog, setOpenAdminConfirmDialog] = useState(false);
+  const [openRoleChangeDialog, setOpenRoleChangeDialog] = useState(false); // New state for role change dialog
   const [userToDelete, setUserToDelete] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -71,6 +72,14 @@ function Users() {
   };
 
   const handleRoleChange = async (userId, newRole) => {
+    const user = users.find((user) => user.id === userId);
+
+    // Check if the user is an admin and the new role is user
+    if (user.role === "admin" && newRole === "user") {
+      setOpenRoleChangeDialog(true); // Open the role change dialog
+      return;
+    }
+
     try {
       const userRef = doc(db, "users", userId);
       await updateDoc(userRef, { role: newRole });
@@ -166,7 +175,7 @@ function Users() {
               ))}
             </List>
 
-            {/* pagination */}
+            {/* Pagination */}
             <Box sx={{ display: "flex", justifyContent: "center", mt: 4, mb: 4 }}>
               <Pagination
                 count={Math.ceil(users.length / usersPerPage)}
@@ -187,7 +196,7 @@ function Users() {
         )}
       </CardContent>
 
-      {/* confirm dialog for users */}
+      {/* Confirm dialog for deleting users */}
       <ConfirmDialog
         open={openConfirmDialog}
         onClose={() => setOpenConfirmDialog(false)}
@@ -198,12 +207,22 @@ function Users() {
         cancelText={confirmDialogT.Cancel_Text}
       />
 
-      {/* confirm dialog for admins */}
+      {/* Confirm dialog for deleting admins */}
       <ConfirmDialog
         open={openAdminConfirmDialog}
         onClose={() => setOpenAdminConfirmDialog(false)}
         onConfirm={() => setOpenAdminConfirmDialog(false)}
         message={confirmDialogT.Delete_Admin_Msg}
+        confirmText={confirmDialogT.Ok_Btn}
+        cancelText={confirmDialogT.Cancel_Text}
+      />
+
+      {/* Confirm dialog for changin admin to user */}
+      <ConfirmDialog
+        open={openRoleChangeDialog}
+        onClose={() => setOpenRoleChangeDialog(false)}
+        onConfirm={() => setOpenRoleChangeDialog(false)}
+        message={confirmDialogT.Role_Change_Msg}
         confirmText={confirmDialogT.Ok_Btn}
         cancelText={confirmDialogT.Cancel_Text}
       />

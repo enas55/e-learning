@@ -5,7 +5,7 @@ import Footer from "./components/footer";
 
 function Layout() {
     return (
-        <div sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+        <div>
             <Navbar />
             <div>
                 <Outlet/>
