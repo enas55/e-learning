@@ -12,6 +12,8 @@ import AdminDashboard from './pages/adminDashboard';
 import AddCourse from './pages/addCourses';
 import EditCourse from './pages/editCourse';
 import Users from './pages/users';
+import JoinedCourses from './pages/joinedCourses';
+
 
 function App() {
   return (
@@ -27,6 +29,7 @@ function App() {
                     <Route path="/add-course" element={<AddCourse />} />
                     <Route path="/edit-course" element={<EditCourse />} />
                     <Route path="/users" element={<Users/>} />
+                    <Route path="/joined-courses" element={<JoinedCourses/>} />
                 </Route>
                 <Route path="/auth" element={<AuthForm />} />
             </Routes>

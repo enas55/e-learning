@@ -1,4 +1,6 @@
 {
     "Main_Title" : "User Dashboard",
-    "Joined_Title" : "Joined Courses"
+    "Joined_Title" : "Joined Courses",
+    "No_Data_Found" : "No User Data Found",
+    "No_Course_Found" : "No Courses Found"
 }
