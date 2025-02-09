@@ -123,6 +123,9 @@ function UserDashboard() {
 
       {/* Joined Courses */}
       <Paper elevation={3} sx={{ padding: 3, borderRadius: 2, backgroundColor: "#f5f5f5" }}>
+        <Typography variant="h5" fontWeight={"bold"} color="#1C1E53" sx={{ marginBottom: 3 }}>
+          {t.Joined_Title}
+        </Typography>
 
         <Box sx={{ 
           display: 'flex', 
