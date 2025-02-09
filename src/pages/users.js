@@ -26,7 +26,7 @@ function Users() {
   const [loading, setLoading] = useState(true);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [openAdminConfirmDialog, setOpenAdminConfirmDialog] = useState(false);
-  const [openRoleChangeDialog, setOpenRoleChangeDialog] = useState(false); // New state for role change dialog
+  const [openRoleChangeDialog, setOpenRoleChangeDialog] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -74,9 +74,8 @@ function Users() {
   const handleRoleChange = async (userId, newRole) => {
     const user = users.find((user) => user.id === userId);
 
-    // Check if the user is an admin and the new role is user
     if (user.role === "admin" && newRole === "user") {
-      setOpenRoleChangeDialog(true); // Open the role change dialog
+      setOpenRoleChangeDialog(true);
       return;
     }
 
