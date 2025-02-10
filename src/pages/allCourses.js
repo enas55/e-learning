@@ -17,6 +17,7 @@ import {
     InputLabel,
     Select,
     CircularProgress,
+    TextField
 } from "@mui/material";
 import CourseCard from "../components/courseCard";
 import CustomSnackbar from "../components/snackbarComponent";
@@ -45,9 +46,11 @@ function AllCourses() {
     const filterAndTitleT = translations[language].filterAndMainTiltles;
     const snackbarT = translations[language].snackbar;
     const pageNameT = translations[language].pageNames;
+    const searchT = translations[language].navbar;
     const [userId, setUserId] = useState(null);
     const favoriteCourses = useSelector((state) => state.favorites.favoriteCourses);
     const navigate = useNavigate();
+    const [searchTerm, setSearchTerm] = useState("");
 
     const loadFavorites = useCallback(async (userId) => {
         try {
@@ -249,6 +252,21 @@ function AllCourses() {
         new Set(courses.flatMap((course) => course.category || []))
     );
 
+    useEffect(() => {
+        const searchCourses = () => {
+            if (searchTerm) {
+                const filtered = courses.filter((course) =>
+                    course.title.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+                setFilteredCourses(filtered);
+            } else {
+                setFilteredCourses(courses);
+            }
+        };
+
+        searchCourses();
+    }, [searchTerm, courses]);
+
     return (
         <div>
             <Container sx={{ mt: 4, mb: 4 }}>
@@ -258,6 +276,37 @@ function AllCourses() {
                     </Box>
                 ) : (
                     <>
+                        {/* search */}
+                        <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
+                            <TextField
+                                label= {searchT.Search_label}
+                                variant="outlined"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                sx={{
+                                    width: "50%",
+                                    "& .MuiOutlinedInput-root": {
+                                        "& fieldset": {
+                                            borderColor: "#1C1E53",
+                                        },
+                                        "&:hover fieldset": {
+                                            borderColor: "#1C1E53",
+                                        },
+                                        "&.Mui-focused fieldset": {
+                                            borderColor: "#1C1E53",
+                                        },
+                                    },
+                                    "& .MuiInputLabel-root": {
+                                        color: "#1C1E53",
+                                    },
+                                    "& .MuiInputLabel-root.Mui-focused": {
+                                        color: "#1C1E53",
+                                    },
+                                }}
+                            />
+                        </Box>
+                        
+
                         <Box
                             sx={{
                                 display: "flex",
@@ -393,6 +442,13 @@ function AllCourses() {
                                 gap: 4,
                             }}
                         >
+                            {filteredCourses.length === 0 && (
+                            <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+                                <Typography variant="h6" sx={{ color: "#1C1E53" }}>
+                                    {searchT.No_Result_Found_Msg}
+                                </Typography>
+                            </Box>
+                        )}
                             {currentCourses.map((course) => {
                                 const isFavorite = favoriteCourses.includes(course.id);
                                 const isJoined = joinedCourses[course.id] || false;
@@ -409,7 +465,7 @@ function AllCourses() {
                                 );
                             })}
                         </Box>
-                        <br/>
+                        <br />
                         <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
                             <Pagination
                                 count={Math.ceil(filteredCourses.length / coursesPerPage)}
