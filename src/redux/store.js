@@ -33,6 +33,8 @@ import usersEn from '../locales/en/usersEn.json';
 import usersAr from '../locales/ar/usersAr.json';
 import joinedCoursesEn from '../locales/en/joinedCoursesEn.json';
 import joinedCoursesAr from '../locales/ar/joinedCoursesAr.json';
+import profileEn from '../locales/en/profileEn.json';
+import profileAr from '../locales/ar/profileAr.json';
 
 // Fav slice
 const favoritesSlice = createSlice({
@@ -78,7 +80,8 @@ const translationSlice = createSlice({
         addCourse: addCourseEn,
         editCourse: editCourseEn,
         users : usersEn,
-        joinedCourses : joinedCoursesEn
+        joinedCourses : joinedCoursesEn,
+        profile : profileEn
       },
       ar: {
         navbar: navbarAr,
@@ -97,7 +100,8 @@ const translationSlice = createSlice({
         addCourse: addCourseAr,
         editCourse: editCourseAr,
         users : usersAr,
-        joinedCourses : joinedCoursesAr
+        joinedCourses : joinedCoursesAr,
+        profile : profileAr
       },
     },
   },

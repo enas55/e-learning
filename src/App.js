@@ -13,6 +13,7 @@ import AddCourse from './pages/addCourses';
 import EditCourse from './pages/editCourse';
 import Users from './pages/users';
 import JoinedCourses from './pages/joinedCourses';
+import Profile from './pages/profile';
 
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
                     <Route path="/edit-course" element={<EditCourse />} />
                     <Route path="/users" element={<Users/>} />
                     <Route path="/joined-courses" element={<JoinedCourses/>} />
+                    <Route path="/profile" element={<Profile/>} />
                 </Route>
                 <Route path="/auth" element={<AuthForm />} />
             </Routes>
