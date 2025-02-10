@@ -26,6 +26,8 @@ function ResponsiveAppBar() {
     const [user, setUser] = useState(null);
     const [userRole, setUserRole] = useState(null);
     const [openLogoutConfirm, setOpenLogoutConfirm] = useState(false);
+    // eslint-disable-next-line no-unused-vars
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
 
     useEffect(() => {
         const savedLanguage = localStorage.getItem('appLanguage') || 'en';
@@ -69,11 +71,21 @@ function ResponsiveAppBar() {
 
     const handleConfirmLogout = async () => {
         setOpenLogoutConfirm(false);
-        await signOut(auth);
-        setUser(null);
-        setUserRole(null);
-        navigate("/");
+        setIsLoggingOut(true);
+
+        try {
+            await signOut(auth);
+            setUser(null);
+            setUserRole(null);
+            navigate("/");
+        } catch (error) {
+            console.error("Error signing out:", error);
+        } finally {
+            setIsLoggingOut(false);
+        }
     };
+
+    
 
     const toggleLanguage = () => {
         const newLanguage = language === 'en' ? 'ar' : 'en';
@@ -83,9 +95,16 @@ function ResponsiveAppBar() {
     const handleDashboardClick = () => {
         if (userRole === 'admin') {
             navigate('/admin-dashboard');
+            handleCloseUserMenu();
         } else {
             navigate('/user-dashboard');
+            handleCloseUserMenu();
         }
+    };
+
+    const handleProfileClick = () => {
+        navigate('/profile');
+        handleCloseUserMenu();
     };
 
     let pages = [
@@ -162,6 +181,26 @@ function ResponsiveAppBar() {
                         </Menu>
                     </Box>
 
+                    <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' }, alignItems: 'center', justifyContent: 'center' }}>
+                        <MenuBookIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
+                        <Typography
+                            variant="h6"
+                            noWrap
+                            component={Link}
+                            to="/"
+                            sx={{
+                                display: { xs: 'flex', md: 'none' },
+                                fontFamily: 'monospace',
+                                fontWeight: 700,
+                                letterSpacing: '.3rem',
+                                color: 'inherit',
+                                textDecoration: 'none',
+                            }}
+                        >
+                            {t.Logo}
+                        </Typography>
+                    </Box>
+
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                         {pages.map(({ label, path }) => (
                             <Typography
@@ -198,7 +237,7 @@ function ResponsiveAppBar() {
                                 open={Boolean(anchorElUser)}
                                 onClose={handleCloseUserMenu}
                             >
-                                <MenuItem onClick={handleCloseUserMenu}>
+                                <MenuItem onClick={handleProfileClick}>
                                     <Typography sx={{ textAlign: 'center' }}>{t.Profile}</Typography>
                                 </MenuItem>
                                 <MenuItem onClick={handleDashboardClick}>
