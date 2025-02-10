@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { collection, getDocs, doc, updateDoc, arrayUnion, arrayRemove, getDoc } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { db } from "../../firebase/firebaseConfig";
-import { Container, Box, Typography, Pagination, IconButton, Chip, Modal, CircularProgress } from "@mui/material";
+import { Container, Box, Typography, Pagination, IconButton, Chip, Modal, CircularProgress, TextField } from "@mui/material";
 import CourseCard from "../../components/courseCard";
 import CustomSnackbar from "../../components/snackbarComponent";
 import ConfirmDialog from "../../components/confirmDialog";
@@ -19,6 +19,7 @@ import CloseIcon from "@mui/icons-material/Close";
 
 function Home() {
     const [courses, setCourses] = useState([]);
+    const [filteredCourses, setFilteredCourses] = useState([]);
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
     const [openFavoriteDialog, setOpenFavoriteDialog] = useState(false);
@@ -39,9 +40,11 @@ function Home() {
     const titleT = translations[language].filterAndMainTiltles;
     const snackbarT = translations[language].snackbar;
     const pageNameT = translations[language].pageNames;
+    const searchT = translations[language].navbar;
     const [userId, setUserId] = useState(null);
     const favoriteCourses = useSelector((state) => state.favorites.favoriteCourses);
     const navigate = useNavigate();
+    const [searchTerm, setSearchTerm] = useState("");
 
     const loadFavorites = useCallback(async (userId) => {
         try {
@@ -111,6 +114,7 @@ function Home() {
                     title: doc.data().title,
                 }));
                 setCourses(coursesData);
+                setFilteredCourses(coursesData);
             } catch (error) {
                 console.error(error);
             } finally {
@@ -120,6 +124,21 @@ function Home() {
 
         fetchCourses();
     }, []);
+
+    useEffect(() => {
+        const searchCourses = () => {
+            if (searchTerm) {
+                const filtered = courses.filter((course) =>
+                    course.title.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+                setFilteredCourses(filtered);
+            } else {
+                setFilteredCourses(courses);
+            }
+        };
+
+        searchCourses();
+    }, [searchTerm, courses]);
 
     const handleJoinClick = async (courseId, courseTitle) => {
         if (!userId) {
@@ -158,7 +177,7 @@ function Home() {
         setOpenJoinDialog(false);
     };
 
-    const popularCourses = courses.filter((course) => course.isPopular);
+    const popularCourses = filteredCourses.filter((course) => course.isPopular);
     const indexOfLastPopularCourse = currentPopularPage * popularCoursesPerPage;
     const indexOfFirstPopularCourse = indexOfLastPopularCourse - popularCoursesPerPage;
     const currentPopularCourses = popularCourses.slice(indexOfFirstPopularCourse, indexOfLastPopularCourse);
@@ -307,6 +326,8 @@ function Home() {
                     </Box>
                 ) : (
                     <>
+                        
+
                         <Box sx={{ mb: 4, position: "relative" }}>
                             <Slider {...carouselSettings}>
                                 {uniqueCategories.map((category, index) => (
@@ -330,11 +351,51 @@ function Home() {
                             </Slider>
                         </Box>
 
-                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, color: "#1C1E53" }}>
+                        
+
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, mt: 4 ,color: "#1C1E53" }}>
+                            
+                            
                             <Typography variant="h4" gutterBottom textAlign="start">
                                 {titleT.Popular_Courses_Title}
                             </Typography>
+
+                            {/* search */}
+                        
+                            <TextField
+                                label={searchT.Search_label}
+                                variant="outlined"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                sx={{
+                                    width: "30%",
+                                    "& .MuiOutlinedInput-root": {
+                                        "& fieldset": {
+                                            borderColor: "#1C1E53",
+                                        },
+                                        "&:hover fieldset": {
+                                            borderColor: "#1C1E53",
+                                        },
+                                        "&.Mui-focused fieldset": {
+                                            borderColor: "#1C1E53",
+                                        },
+                                    },
+                                    "& .MuiInputLabel-root": {
+                                        color: "#1C1E53",
+                                    },
+                                    "& .MuiInputLabel-root.Mui-focused": {
+                                        color: "#1C1E53",
+                                    },
+                                }}
+                            />
                         </Box>
+                        {filteredCourses.length === 0 && (
+                            <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+                                <Typography variant="h6" sx={{ color: "#1C1E53" }}>
+                                    {searchT.No_Result_Found_Msg}
+                                </Typography>
+                            </Box>
+                        )}
                         <Box
                             sx={{
                                 display: "grid",
@@ -359,8 +420,8 @@ function Home() {
                                 );
                             })}
                         </Box>
-                        <br/>
-                        <Box sx={{ display: "flex", justifyContent: "center", mb: 4}}>
+                        <br />
+                        <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
                             <Pagination
                                 count={Math.ceil(popularCourses.length / 6)}
                                 page={currentPopularPage}

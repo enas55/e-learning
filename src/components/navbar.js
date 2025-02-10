@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setLanguage } from '../redux/store';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { AppBar, Box, Toolbar, IconButton, Typography, Menu, MenuItem, TextField, Avatar, Tooltip, Container, Badge } from '@mui/material';
+import { AppBar, Box, Toolbar, IconButton, Typography, Menu, MenuItem, Avatar, Tooltip, Container, Badge } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import LanguageIcon from '@mui/icons-material/Language';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
@@ -160,19 +160,6 @@ function ResponsiveAppBar() {
                                 </MenuItem>
                             ))}
                         </Menu>
-                    </Box>
-
-                    <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', ml: 2 }}>
-                        <TextField
-                            variant="outlined"
-                            placeholder={t.Search_label}
-                            size="small"
-                            sx={{
-                                backgroundColor: 'white',
-                                borderRadius: '8px',
-                                width: { xs: '100%', sm: '250px', md: '300px' },
-                            }}
-                        />
                     </Box>
 
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
