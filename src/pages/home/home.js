@@ -326,8 +326,6 @@ function Home() {
                     </Box>
                 ) : (
                     <>
-                        
-
                         <Box sx={{ mb: 4, position: "relative" }}>
                             <Slider {...carouselSettings}>
                                 {uniqueCategories.map((category, index) => (
@@ -350,7 +348,6 @@ function Home() {
                                 ))}
                             </Slider>
                         </Box>
-
                         
 
                         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, mt: 4 ,color: "#1C1E53" }}>

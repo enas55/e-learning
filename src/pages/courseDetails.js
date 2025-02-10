@@ -43,8 +43,8 @@ function CourseDetails() {
     const location = useLocation();
 
     useEffect(() => {
-            document.title = pageNameT.Course_Details_Page;
-        }, [location, pageNameT]);
+        document.title = pageNameT.Course_Details_Page;
+    }, [location, pageNameT]);
 
     const loadJoinedCourses = useCallback(async (userId) => {
         try {
@@ -192,7 +192,7 @@ function CourseDetails() {
     if (loading) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                <CircularProgress sx={{color: "#1C1E53"}}/>
+                <CircularProgress sx={{ color: "#1C1E53" }} />
             </Box>
         );
     }
@@ -262,7 +262,7 @@ function CourseDetails() {
                                         color={isFavorite ? 'error' : 'default'}
                                         onClick={handleFavoriteClick}
                                     >
-                                        {isFavorite ? <Favorite /> : <FavoriteBorder />}
+                                        {isFavorite ? <Favorite /> : <FavoriteBorder/>}
                                     </IconButton>
                                 </Stack>
                             </CardContent>

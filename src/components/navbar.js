@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setLanguage } from '../redux/store';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { AppBar, Box, Toolbar, IconButton, Typography, Menu, MenuItem, Avatar, Tooltip, Container, Badge } from '@mui/material';
+import { AppBar, Box, Toolbar, IconButton, Typography, Menu, MenuItem, Avatar, Tooltip, Container, Badge, CircularProgress} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import LanguageIcon from '@mui/icons-material/Language';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
@@ -26,7 +26,6 @@ function ResponsiveAppBar() {
     const [user, setUser] = useState(null);
     const [userRole, setUserRole] = useState(null);
     const [openLogoutConfirm, setOpenLogoutConfirm] = useState(false);
-    // eslint-disable-next-line no-unused-vars
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
     useEffect(() => {
@@ -84,8 +83,6 @@ function ResponsiveAppBar() {
             setIsLoggingOut(false);
         }
     };
-
-    
 
     const toggleLanguage = () => {
         const newLanguage = language === 'en' ? 'ar' : 'en';
@@ -222,6 +219,7 @@ function ResponsiveAppBar() {
 
                     {user ? (
                         <Box sx={{ flexGrow: 0, ml: 2 }}>
+                            {isLoggingOut && <CircularProgress size={24} sx={{ mr: 1, color: "white"}} />}
                             <Tooltip title="User settings">
                                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                                     <Avatar alt="User" src={user.photoURL || "/static/images/avatar/2.jpg"} />
