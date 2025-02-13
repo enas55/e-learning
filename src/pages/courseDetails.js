@@ -209,7 +209,7 @@ function CourseDetails() {
 
     return (
         <Box>
-            <Container sx={{ mt: 6, mb: 6 }}>
+            <Container sx={{ mt: 6, mb: 6, direction: language === "en" ? "ltr" : "rtl"}}>
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={4}>
                     <Box sx={{ flex: 1 }}>
                         <Card>
@@ -221,20 +221,22 @@ function CourseDetails() {
                             />
                         </Card>
                     </Box>
-                    <Box sx={{ flex: 1 }}>
+                    <Box sx={{ flex: 1}}>
                         <Card>
                             <CardContent>
                                 <Typography variant="h3" gutterBottom>
-                                    {course.title}
+                                    {/* {course.title} */}
+                                    {language === "en" ? course.title : course.titleAr}
                                 </Typography>
                                 <Typography variant="body1" sx={{ mb: 2 }}>
-                                    {course.description}
+                                    {/* {course.description} */}
+                                    {language === "en" ? course.description : course.descriptionAr}
                                 </Typography>
                                 <Typography variant="h6" sx={{ color: '#1C1E53', mb: 2 }}>
                                     {courseDetailsT.Price} ${course.price}
                                 </Typography>
                                 <Typography variant="h6" sx={{ color: '#1C1E53' }}>
-                                    {courseDetailsT.Created_By} {course.createdBy}
+                                    {courseDetailsT.Created_By} {language === "en" ? course.createdBy : course.creatorAr}
                                 </Typography>
                                 <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 2 }}>
                                     <Typography variant="h6" sx={{ color: '#1C1E53' }}>

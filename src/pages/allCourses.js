@@ -277,7 +277,7 @@ function AllCourses() {
                 ) : (
                     <>
                         {/* search */}
-                        <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
+                        <Box sx={{ display: "flex", justifyContent: "center", mb: 4, direction: language === "en" ? "ltr" : "rtl" }}>
                             <TextField
                                 label= {searchT.Search_label}
                                 variant="outlined"
@@ -314,6 +314,8 @@ function AllCourses() {
                                 alignItems: "center",
                                 mb: 2,
                                 color: "#1C1E53",
+                                direction: language === "en" ? "ltr" : "rtl",
+                                padding: 2
                             }}
                         >
                             <Typography variant="h4" gutterBottom textAlign="start">

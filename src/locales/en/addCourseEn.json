@@ -14,5 +14,10 @@
     "Img_URL_Valid_2" : "Invalid URL",
     "Creator_Valid" : "Creator name is required",
     "Price_Valid" : "Price must be a positive number",
-    "Category_Valid" : "Category is required"
+    "Category_Valid" : "Category is required",
+    "Title_Label_Ar" : "Title in Arabic",
+    "Description_Label_Ar" : "Description in Arabic",
+    "Created_By_Label_Ar": "Created By in Arabic",
+    "Category_Ar": "Category in Arabic"
+
 }

@@ -1,9 +1,12 @@
 {
     "Main_Title" : "Edit Course",
     "Title_Label" : "Title",
+    "Title_Label_Ar" : "Title in Arabic",
     "Description_Label" : "Description",
+    "Description_Label_Ar" : "Description in Arabic",
     "Image_URL_Label" : "Image URL",
     "Created_By_Label": "Created By",
+    "Created_By_Label_Ar": "Created By in Arabic",
     "Price_Label" : "Price",
     "Save_Changes_Btn" : "Save Changes"
 }

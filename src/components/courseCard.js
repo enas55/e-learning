@@ -24,13 +24,15 @@ function CourseCard({ course, isFavorite, toggleFavorite, isJoined, toggleJoin, 
         <Card sx={{ height: "100%", display: "flex", flexDirection: "column", padding: 2}}>
             <CardMedia component="img" height="140" image={course.image} alt={course.title} />
             <CardContent sx={{ flexGrow: 1 }}>
-                <Typography variant="h6" sx={{ fontWeight: "bold", marginBottom: 1 }}>
-                    {course.title}
+                <Typography variant="h6" sx={{ fontWeight: "bold", marginBottom: 1, direction: language === "en" ? "ltr" : "rtl" }}>
+                    {/* {course.title} */}
+                    {language === "en" ? course.title : course.titleAr}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ marginBottom: 2 }}>
-                    {course.description}
+                <Typography variant="body2" color="text.secondary" sx={{ marginBottom: 2, direction: language === "en" ? "ltr" : "rtl"}}>
+                    {/* {course.description} */}
+                    {language === "en" ? course.description : course.descriptionAr}
                 </Typography>
-                <Typography variant="body1" sx={{ color: "#1C1E53", fontWeight: "bold" }}>
+                <Typography variant="body1" sx={{ color: "#1C1E53", fontWeight: "bold", direction: language === "en" ? "ltr" : "rtl"}}>
                     {t.Price} ${course.price}
                 </Typography>
             </CardContent>

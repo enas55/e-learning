@@ -3,7 +3,7 @@ import { auth, db } from "../firebase/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
     Container,
     Card,
@@ -25,6 +25,7 @@ function Profile() {
     const t = translations[language].profile;
     const pageNameT = translations[language].pageNames;
     const location = useLocation();
+    const navigate = useNavigate();
 
     useEffect(() => {
         document.title = pageNameT.Profile_Page;
@@ -39,12 +40,13 @@ function Profile() {
                 setUser(null);
                 setRole("");
                 setName("");
+                navigate("/");
             }
             setLoading(false);
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [navigate]);
 
     const fetchUserData = async (userId) => {
         try {
@@ -73,8 +75,12 @@ function Profile() {
         );
     }
 
+    if (!user) {
+        return null; // أو يمكنك إظهار رسالة أو توجيه المستخدم إلى صفحة أخرى
+    }
+
     return (
-        <Container maxWidth="md" sx={{ mt: 6, mb: 6 }}>
+        <Container maxWidth="md" sx={{ mt: 6, mb: 6, direction: language === "en" ? "ltr" : "rtl"}}>
             <Typography variant="h4" sx={{ color: "#1C1E53", textAlign: "center", mb: 2 }}>
                 {t.Profile_Title}
             </Typography>

@@ -20,7 +20,6 @@ function ResponsiveAppBar() {
     const t = translations[language].navbar;
     const confirmDialogT = translations[language].confirmDialog;
     const location = useLocation();
-
     const [anchorElNav, setAnchorElNav] = useState(null);
     const [anchorElUser, setAnchorElUser] = useState(null);
     const [user, setUser] = useState(null);
@@ -76,7 +75,9 @@ function ResponsiveAppBar() {
             await signOut(auth);
             setUser(null);
             setUserRole(null);
-            navigate("/");
+                
+                navigate("/");
+            
         } catch (error) {
             console.error("Error signing out:", error);
         } finally {
@@ -100,8 +101,9 @@ function ResponsiveAppBar() {
     };
 
     const handleProfileClick = () => {
-        navigate('/profile');
-        handleCloseUserMenu();
+            navigate('/profile');
+            handleCloseUserMenu();
+        
     };
 
     let pages = [
@@ -123,7 +125,7 @@ function ResponsiveAppBar() {
     const isActive = (path) => location.pathname === path;
 
     return (
-        <AppBar position="static" sx={{ backgroundColor: '#1C1E53' }}>
+        <AppBar position="static" sx={{ backgroundColor: '#1C1E53', direction: language === "en" ? "ltr" : "rtl" }}>
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
                     <MenuBookIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
@@ -287,5 +289,6 @@ function ResponsiveAppBar() {
         </AppBar>
     );
 }
+
 
 export default ResponsiveAppBar;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Container, Typography, Box, CircularProgress, Paper } from "@mui/material";
+import { Container, Typography, Box, CircularProgress} from "@mui/material";
 import { auth, db } from "../firebase/firebaseConfig";
 import { doc, getDoc, collection, getDocs, query, where, updateDoc, arrayRemove } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
@@ -122,7 +122,7 @@ function UserDashboard() {
       </Typography>
 
       {/* Joined Courses */}
-      <Paper elevation={3} sx={{ padding: 3, borderRadius: 2, backgroundColor: "#f5f5f5" }}>
+      <Box elevation={3} sx={{ padding: 3, borderRadius: 2, backgroundColor: "#f5f5f5", direction: language === "en" ? "ltr" : "rtl" }}>
         <Typography variant="h5" fontWeight={"bold"} color="#1C1E53" sx={{ marginBottom: 3 }}>
           {t.Joined_Title}
         </Typography>
@@ -156,7 +156,7 @@ function UserDashboard() {
             </Typography>
           )}
         </Box>
-      </Paper>
+      </Box>
 
       {/* Confirm Dialog */}
       <ConfirmDialog

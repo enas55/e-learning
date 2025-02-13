@@ -32,7 +32,7 @@ function Users() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(5);
-  const { translations, language } = useSelector((state) => state.translation);
+const { translations, language } = useSelector((state) => state.translation);
   const t = translations[language].users;
   const pageNameT = translations[language].pageNames;
   const confirmDialogT = translations[language].confirmDialog;

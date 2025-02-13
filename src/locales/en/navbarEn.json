@@ -8,5 +8,6 @@
     "Dashboard" : "Dashboard",
     "Logout" : "Logout",
     "Register" : "Register",
-    "No_Result_Found_Msg" : "No Result Found"
+    "No_Result_Found_Msg" : "No Result Found",
+    "Courses_In" : "Courses in "
 }
