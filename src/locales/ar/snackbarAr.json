@@ -7,5 +7,6 @@
     "Snackbar_No_Changes" : "لم يحدث اي تغييرات",
     "Snackbar_Course_Update" : "تم تحديث الكورس بنجاح",
     "Snackbar_Course_Delete" : "تم حذف الكورس بنجاح",
-    "Snackbar_User_Delete" : "تم حذف ايميل المستخدم بنجاح"
+    "Snackbar_User_Delete" : "تم حذف ايميل المستخدم بنجاح",
+    "Snackbar_User_To_Admin" : "هذا المستخدم أصبح أدمن"
 }

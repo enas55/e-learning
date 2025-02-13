@@ -7,5 +7,6 @@
     "Snackbar_No_Changes" : "No Changes Were Made",
     "Snackbar_Course_Update" : "Course updated successfully",
     "Snackbar_Course_Delete" : "Course deleted successfully",
-    "Snackbar_User_Delete" : "User Email deleted successfully"
+    "Snackbar_User_Delete" : "User Email deleted successfully",
+    "Snackbar_User_To_Admin" : "This user is admin now"
 }
