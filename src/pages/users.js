@@ -81,7 +81,7 @@ const { translations, language } = useSelector((state) => state.translation);
     try {
       const userRef = doc(db, "users", userId);
       await updateDoc(userRef, { role: newRole });
-      setSnackbarMessage(snackbarT.Snackbar_User_Update);
+      setSnackbarMessage(snackbarT.Snackbar_User_To_Admin);
       setSnackbarOpen(true);
 
       const updatedUsers = users.map((user) =>
