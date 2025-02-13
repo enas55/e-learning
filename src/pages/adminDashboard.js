@@ -23,7 +23,7 @@ function AdminDashboard (){
   ];
 
   return (
-    <Container maxWidth="lg">
+    <Container maxWidth="lg" sx={{direction: language === "en" ? "ltr" : "rtl"}}>
       <Typography
         variant="h3"
         sx={{

@@ -271,11 +271,10 @@ function Home() {
         ],
     };
 
-    const uniqueCategories = Array.from(new Set(courses.flatMap((course) => course.category || [])));
-
+    const uniqueCategories = Array.from(new Set(courses.flatMap((course) => language === "en" ? course.category : course.catAr || [])));
+    
     const handleCategoryClick = (category) => {
-        const filtered = courses.filter((course) => course.category && course.category.includes(category));
-        setCategoryCourses(filtered);
+        const filtered = courses.filter((course) => language === "en" ? course.category.includes(category) : course.catAr.includes(category));        setCategoryCourses(filtered);
         setSelectedCategory(category);
         setOpenCategoryModal(true);
     };
@@ -350,7 +349,15 @@ function Home() {
                         </Box>
                         
 
-                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, mt: 4 ,color: "#1C1E53" }}>
+                        <Box sx={{ display: "flex", 
+                            justifyContent: "space-between", 
+                            alignItems: "center", 
+                            mb: 2, 
+                            mt: 4 ,
+                            color: "#1C1E53", 
+                            direction: language === "en" ? "ltr" : "rtl", 
+                            padding: 2,
+                            }}>
                             
                             
                             <Typography variant="h4" gutterBottom textAlign="start">
@@ -459,6 +466,7 @@ function Home() {
                         boxShadow: 24,
                         p: 4,
                         borderRadius: 2,
+                        direction: language === "en" ? "ltr" : "rtl"
                     }}
                 >
                     <IconButton
@@ -469,13 +477,15 @@ function Home() {
                             right: 8,
                             top: 8,
                             color: "#1C1E53",
+                            
                         }}
+                        
                     >
-                        <CloseIcon />
+                        <CloseIcon/>
                     </IconButton>
 
                     <Typography id="category-modal-title" variant="h6" component="h2" sx={{ mb: 2 }}>
-                        Courses in {selectedCategory}
+                        {searchT.Courses_In} {selectedCategory}
                     </Typography>
                     <Box
                         sx={{

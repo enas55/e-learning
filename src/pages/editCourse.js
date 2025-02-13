@@ -26,11 +26,13 @@ function EditCourse (){
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
-    description: "",
-    image: "",
-    createdBy: "",
-    price: "",
-    category: "",
+      titleAr: "",
+      description: "",
+      descriptionAr: "",
+      image: "",
+      createdBy: "",
+      creatorAr : "",
+      price: "",
   });
   const [errors, setErrors] = useState({});
   const [openModal, setOpenModal] = useState(false);
@@ -85,11 +87,15 @@ function EditCourse (){
     setSelectedCourse(course);
     setFormData({
       title: course.title,
+      titleAr : course.titleAr,
       description: course.description,
+      descriptionAr : course.descriptionAr,
       image: course.image,
       createdBy: course.createdBy,
+      creatorAr: course.creatorAr,
       price: course.price,
-      category : course.category
+      category : course.category,
+      catAr : course.catAr
     });
     setOpenModal(true);
   };
@@ -99,9 +105,12 @@ function EditCourse (){
     setSelectedCourse(null);
     setFormData({
       title: "",
+      titleAr: "",
       description: "",
+      descriptionAr: "",
       image: "",
       createdBy: "",
+      creatorAr : "",
       price: "",
     });
   };
@@ -158,12 +167,16 @@ function EditCourse (){
   const validate = () => {
     let tempErrors = {};
     if (!formData.title) tempErrors.title = addCourseT.Title_Valid;
+    if (!formData.titleAr) tempErrors.title = addCourseT.Title_Valid;
     if (!formData.description) tempErrors.description = addCourseT.Description_Valid;
+    if (!formData.descriptionAr) tempErrors.description = addCourseT.Description_Valid;
     if (!formData.image) tempErrors.image = addCourseT.Img_URL_Valid;
     if (!/^https?:\/\/.+/.test(formData.image)) tempErrors.image = addCourseT.Img_URL_Valid_2;
     if (!formData.createdBy) tempErrors.createdBy = addCourseT.Creator_Valid;
+    if (!formData.creatorAr) tempErrors.createdBy = addCourseT.Creator_Valid;
     if (!formData.price || formData.price <= 0) tempErrors.price = addCourseT.Price_Valid;
     if (!formData.category) tempErrors.category = addCourseT.Category_Valid;
+    if (!formData.catAr) tempErrors.category = addCourseT.Category_Valid;
 
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
@@ -176,7 +189,7 @@ function EditCourse (){
 
   return (
     <Container maxWidth="lg">
-      <Typography variant="h4" gutterBottom sx={{ mt: 4, mb: 4, color: "#1C1E53" }}>
+      <Typography variant="h4" gutterBottom sx={{ mt: 4, mb: 4, color: "#1C1E53", direction: language === "en" ? "ltr" : "rtl"}}>
         {t.Main_Title}
       </Typography>
 
@@ -195,11 +208,13 @@ function EditCourse (){
                   justifyContent: "space-between",
                   alignItems: "center",
                   borderBottom: "1px solid #eee",
+                  
                 }}
               >
                 <ListItemText
-                  primary={course.title}
-                  secondary={`Created by: ${course.createdBy} - Price: $${course.price}`}
+                  primary={language === "en" ? course.title : course.titleAr}
+                  secondary={language === "en" ? `Created by: ${course.createdBy} - Price: $${course.price}` : `تم الإنشاء بواسطة:  ${course.creatorAr} - السعر: $${course.price}`}
+                  
                 />
                 <Box>
                   <IconButton onClick={() => handleEditClick(course)}>
@@ -261,8 +276,8 @@ function EditCourse (){
               fullWidth
               margin="normal"
               label= {t.Title_Label}
-              name="title"
-              value={formData.title}
+              name= {language === "en" ? "title" : "titleAr"}
+              value={language === "en" ? formData.title : formData.titleAr}
               onChange={handleChange}
               error={Boolean(errors.title)}
               helperText={errors.title}
@@ -278,10 +293,10 @@ function EditCourse (){
               fullWidth
               margin="normal"
               label= {t.Description_Label}
-              name="description"
+              name= {language === "en" ? "description" : "descriptionAr"}
               multiline
               rows={3}
-              value={formData.description}
+              value={language === "en" ? formData.description : formData.descriptionAr}
               onChange={handleChange}
               error={Boolean(errors.description)}
               helperText={errors.description}
@@ -314,8 +329,8 @@ function EditCourse (){
               fullWidth
               margin="normal"
               label= {t.Created_By_Label}
-              name="createdBy"
-              value={formData.createdBy}
+              name= {language === "en" ? "createdBy" : "creatorAr"}
+              value={language === "en" ? formData.createdBy : formData.creatorAr}
               onChange={handleChange}
               error={Boolean(errors.createdBy)}
               helperText={errors.createdBy}
@@ -349,8 +364,8 @@ function EditCourse (){
                         fullWidth
                         margin="normal"
                         label= {addCourseT.Category}
-                        name="category"
-                        value={formData.category}
+                        name={language === "en" ? "category" : "catAr"}
+                        value={language === "en" ? formData.category : formData.catAr}
                         onChange={handleChange}
                         error={Boolean(errors.category)}
                         helperText={errors.category}

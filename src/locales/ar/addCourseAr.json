@@ -14,5 +14,9 @@
     "Img_URL_Valid_2" : "رابط غير صالح",
     "Creator_Valid" : "المنشئ مطلوب",
     "Price_Valid" : "يجب ان يكون السعر رقم موجب",
-    "Category_Valid" : "التصنيف مطلوب"
+    "Category_Valid" : "التصنيف مطلوب",
+    "Title_Label_Ar" : "العنوان بالعربية",
+    "Description_Label_Ar" : "الوصف بالعربية",
+    "Created_By_Label_Ar": "اسم المنشئ بالعربية",
+    "Category_Ar": "التصنيف بالعربي"
 }

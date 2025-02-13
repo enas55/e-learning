@@ -9,11 +9,15 @@ import { useLocation} from "react-router-dom";
 function AddCourse ({ onCourseAdded }) {
   const [formData, setFormData] = useState({
     title: "",
+    titleAr: "",
     description: "",
+    descriptionAr: "",
     image: "",
     createdBy: "",
+    creatorAr: "",
     price: "",
     category: "",
+    catAr: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -37,12 +41,16 @@ function AddCourse ({ onCourseAdded }) {
   const validate = () => {
     let tempErrors = {};
     if (!formData.title) tempErrors.title = t.Title_Valid;
+    if (!formData.titleAr) tempErrors.title = t.Title_Valid;
     if (!formData.description) tempErrors.description = t.Description_Valid;
+    if (!formData.descriptionAr) tempErrors.description = t.Description_Valid;
     if (!formData.image) tempErrors.image = t.Img_URL_Valid;
     if (!/^https?:\/\/.+/.test(formData.image)) tempErrors.image = t.Img_URL_Valid_2;
     if (!formData.createdBy) tempErrors.createdBy = t.Creator_Valid;
+    if (!formData.creatorAr) tempErrors.createdBy = t.Creator_Valid;
     if (!formData.price || formData.price <= 0) tempErrors.price = t.Price_Valid;
     if (!formData.category) tempErrors.category = t.Category_Valid;
+    if (!formData.catAr) tempErrors.category = t.Category_Valid;
 
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
@@ -55,11 +63,15 @@ function AddCourse ({ onCourseAdded }) {
       try {
         const docRef = await addDoc(collection(db, "courses"), {
           title: formData.title,
+          titleAr: formData.titleAr,
           description: formData.description,
+          descriptionAr: formData.descriptionAr,
           image: formData.image,
           createdBy: formData.createdBy,
+          creatorAr: formData.creatorAr,
           price: Number(formData.price),
           category: formData.category,
+          catAr: formData.catAr,
         });
         console.log("Course added with ID:", docRef.id);
 
@@ -72,7 +84,16 @@ function AddCourse ({ onCourseAdded }) {
           });
         }
 
-        setFormData({ title: "", description: "", image: "", createdBy: "", price: "", category: "" });
+        setFormData({ title: "",
+          titleAr: "",
+          description: "",
+          descriptionAr: "",
+          image: "",
+          createdBy: "",
+          creatorAr: "",
+          price: "",
+          category: "",
+          catAr: "",});
         setErrors({});
 
         setOpenSnackbar(true);
@@ -90,7 +111,7 @@ function AddCourse ({ onCourseAdded }) {
   return (
     <Card sx={{ maxWidth: 500, color: "#1C1E53", margin: "auto", mt: 5, p: 3 }}>
       <CardContent>
-        <Typography variant="h5" gutterBottom>
+        <Typography variant="h5" gutterBottom sx={{direction: language === "en" ? "ltr" : "rtl"}}>
           {t.Add_New_Course}
         </Typography>
         <form onSubmit={handleSubmit}>
@@ -114,11 +135,47 @@ function AddCourse ({ onCourseAdded }) {
           <TextField
             fullWidth
             margin="normal"
+            label= {t.Title_Label_Ar}
+            name="titleAr"
+            value={formData.titleAr}
+            onChange={handleChange}
+            error={Boolean(errors.title)}
+            helperText={errors.title}
+            sx={{
+              "& .MuiInputLabel-root": { color: "#1C1E53" },
+              "& .MuiInputLabel-root.Mui-focused": { color: "#1C1E53" },
+              "& .MuiOutlinedInput-root": {
+                "&.Mui-focused fieldset": { borderColor: "#1C1E53" }
+              },
+            }}
+          />
+          <TextField
+            fullWidth
+            margin="normal"
             label= {t.Description}
             name="description"
             multiline
             rows={3}
             value={formData.description}
+            onChange={handleChange}
+            error={Boolean(errors.description)}
+            helperText={errors.description}
+            sx={{
+              "& .MuiInputLabel-root": { color: "#1C1E53" },
+              "& .MuiInputLabel-root.Mui-focused": { color: "#1C1E53" },
+              "& .MuiOutlinedInput-root": {
+                "&.Mui-focused fieldset": { borderColor: "#1C1E53" }
+              }
+            }}
+          />
+          <TextField
+            fullWidth
+            margin="normal"
+            label= {t.Description_Label_Ar}
+            name="descriptionAr"
+            multiline
+            rows={3}
+            value={formData.descriptionAr}
             onChange={handleChange}
             error={Boolean(errors.description)}
             helperText={errors.description}
@@ -167,6 +224,23 @@ function AddCourse ({ onCourseAdded }) {
           <TextField
             fullWidth
             margin="normal"
+            label= {t.Created_By_Label_Ar}
+            name="creatorAr"
+            value={formData.creatorAr}
+            onChange={handleChange}
+            error={Boolean(errors.createdBy)}
+            helperText={errors.createdBy}
+            sx={{
+              "& .MuiInputLabel-root": { color: "#1C1E53" },
+              "& .MuiInputLabel-root.Mui-focused": { color: "#1C1E53" },
+              "& .MuiOutlinedInput-root": {
+                "&.Mui-focused fieldset": { borderColor: "#1C1E53" }
+              }
+            }}
+          />
+          <TextField
+            fullWidth
+            margin="normal"
             label= {t.Price}
             name="price"
             type="number"
@@ -188,6 +262,23 @@ function AddCourse ({ onCourseAdded }) {
             label= {t.Category}
             name="category"
             value={formData.category}
+            onChange={handleChange}
+            error={Boolean(errors.category)}
+            helperText={errors.category}
+            sx={{
+              "& .MuiInputLabel-root": { color: "#1C1E53" },
+              "& .MuiInputLabel-root.Mui-focused": { color: "#1C1E53" },
+              "& .MuiOutlinedInput-root": {
+                "&.Mui-focused fieldset": { borderColor: "#1C1E53" }
+              }
+            }}
+          />
+          <TextField
+            fullWidth
+            margin="normal"
+            label= {t.Category_Ar}
+            name="catAr"
+            value={formData.catAr}
             onChange={handleChange}
             error={Boolean(errors.category)}
             helperText={errors.category}
