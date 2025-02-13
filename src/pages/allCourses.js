@@ -220,7 +220,7 @@ function AllCourses() {
 
         if (categoryFilter) {
             filtered = filtered.filter((course) =>
-                course.category && course.category.includes(categoryFilter)
+                language === "en" ? course.category.includes(categoryFilter) : course.catAr.includes(categoryFilter)
             );
         }
 
@@ -248,9 +248,8 @@ function AllCourses() {
         setCurrentPage(value);
     };
 
-    const uniqueCategories = Array.from(
-        new Set(courses.flatMap((course) => course.category || []))
-    );
+    const uniqueCategories = Array.from(new Set(courses.flatMap((course) => language === "en" ? course.category : course.catAr || [])));
+
 
     useEffect(() => {
         const searchCourses = () => {
@@ -372,7 +371,7 @@ function AllCourses() {
                                             },
                                         }}
                                     >
-                                        <MenuItem value="">None</MenuItem>
+                                        <MenuItem value="">{language === "en" ? "None" : "لا شئ"}</MenuItem>
                                         <MenuItem value="lowToHigh">{filterAndTitleT.Low_To_High_Text}</MenuItem>
                                         <MenuItem value="highToLow">{filterAndTitleT.High_To_High_Text}</MenuItem>
                                     </Select>
@@ -391,7 +390,7 @@ function AllCourses() {
                                     <Select
                                         value={categoryFilter}
                                         onChange={(e) => setCategoryFilter(e.target.value)}
-                                        label="Category"
+                                        label={language === "en" ? "Category" : "catAr"}
                                         sx={{
                                             "& .MuiOutlinedInput-notchedOutline": {
                                                 borderColor: "#1C1E53",
@@ -404,7 +403,7 @@ function AllCourses() {
                                             },
                                         }}
                                     >
-                                        <MenuItem value="">None</MenuItem>
+                                        <MenuItem value="">{language === "en" ? "None" : "لا شئ"}</MenuItem>
                                         {uniqueCategories.map((cat, index) => (
                                             <MenuItem key={index} value={cat}>
                                                 {cat}
